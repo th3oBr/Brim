@@ -22,10 +22,11 @@ struct TopAppBar: View {
                 }
             } else {
                 HStack(spacing: 12) {
-                    Image("profile_placeholder") // Assuming we will add an image later or use a standard circle
+                    Image(systemName: "person.crop.circle.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 32, height: 32)
+                        .foregroundColor(Color.primaryColor)
                         .clipShape(Circle())
                         .overlay(
                             Circle()

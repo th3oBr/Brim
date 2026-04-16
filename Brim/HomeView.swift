@@ -181,7 +181,7 @@ struct HomeView: View {
                 // Insights Bento
                 HStack(spacing: 16) {
                     VStack(alignment: .leading) {
-                        Image(systemName: "chart.line.down.forward")
+                        Image(systemName: "arrow.down.right")
                             .font(.system(size: 32))
                             .padding(.bottom, 16)
 
