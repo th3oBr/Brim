@@ -24,6 +24,12 @@ struct SubscriptionsView: View {
             }
         }
     }
+    
+    let formatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "d"
+            return f
+        }()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -100,8 +106,6 @@ struct SubscriptionsView: View {
                                     .foregroundColor(Color.onSurfaceVariant)
                             } else {
                                 ForEach(subscriptions) { sub in
-                                    let formatter = DateFormatter()
-                                    formatter.dateFormat = "d"
                                     let day = formatter.string(from: sub.nextPaymentDate)
                                     let nthDay = "\(day)\(daySuffix(from: day))"
 
