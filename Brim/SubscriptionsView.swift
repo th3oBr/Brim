@@ -1,7 +1,29 @@
 import SwiftUI
+import SwiftData
 
 struct SubscriptionsView: View {
     @Binding var showAddSubscription: Bool
+
+    @Query(sort: \Subscription.nextPaymentDate) private var subscriptions: [Subscription]
+
+    var upcomingSubscriptions: [Subscription] {
+        let calendar = Calendar.current
+        let today = Date()
+        if let nextWeek = calendar.date(byAdding: .day, value: 7, to: today) {
+            return subscriptions.filter { $0.nextPaymentDate >= today && $0.nextPaymentDate <= nextWeek }
+        }
+        return []
+    }
+
+    var totalMonthlyFixedCost: Double {
+        subscriptions.reduce(0) { total, sub in
+            if sub.cycle == 0 { // Monthly
+                return total + sub.amount
+            } else { // Yearly
+                return total + (sub.amount / 12)
+            }
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -36,20 +58,23 @@ struct SubscriptionsView: View {
                         .padding(.horizontal, 24)
 
                         VStack(spacing: 16) {
-                            WarningCard(
-                                icon: "play.tv.fill",
-                                title: "Netflix Premium",
-                                subtext: "Due in 2 days • Entertainment",
-                                amount: "$19.99",
-                                badge: "CRITICAL"
-                            )
-                            WarningCard(
-                                icon: "bolt.fill",
-                                title: "Adobe Creative Cloud",
-                                subtext: "Due in 5 days • Professional",
-                                amount: "$54.99",
-                                badge: "UPCOMING"
-                            )
+                            if upcomingSubscriptions.isEmpty {
+                                Text("No subscriptions due soon.")
+                                    .font(.custom("Inter", size: 14))
+                                    .foregroundColor(Color.onSurfaceVariant)
+                                    .padding(.vertical, 8)
+                            } else {
+                                ForEach(upcomingSubscriptions) { sub in
+                                    let daysUntil = Calendar.current.dateComponents([.day], from: Date(), to: sub.nextPaymentDate).day ?? 0
+                                    WarningCard(
+                                        icon: sub.category == 0 ? "play.tv.fill" : "bolt.fill",
+                                        title: sub.serviceName,
+                                        subtext: "Due in \(daysUntil) days • \(sub.category == 0 ? "Entertainment" : "Software")",
+                                        amount: String(format: "$%.2f", sub.amount),
+                                        badge: daysUntil <= 2 ? "CRITICAL" : "UPCOMING"
+                                    )
+                                }
+                            }
                         }
                         .padding(.horizontal, 24)
                     }
@@ -69,9 +94,27 @@ struct SubscriptionsView: View {
                         .padding(.horizontal, 24)
 
                         VStack(spacing: 12) {
-                            SubscriptionRow(icon: "music.note", iconColor: Color.secondary, bgColor: Color.secondaryContainer.opacity(0.2), title: "Spotify Family", subtext: "Monthly • Renewing on 24th", amount: "$16.99")
-                            SubscriptionRow(icon: "cloud.fill", iconColor: Color.primaryColor, bgColor: Color.primaryContainer.opacity(0.1), title: "iCloud+ 2TB", subtext: "Monthly • Renewing on 28th", amount: "$9.99")
-                            SubscriptionRow(icon: "brain", iconColor: Color.onSurface, bgColor: Color.surfaceContainerHighest, title: "ChatGPT Plus", subtext: "Monthly • Renewing on 15th", amount: "$20.00")
+                            if subscriptions.isEmpty {
+                                Text("No subscriptions found.")
+                                    .font(.custom("Inter", size: 14))
+                                    .foregroundColor(Color.onSurfaceVariant)
+                            } else {
+                                ForEach(subscriptions) { sub in
+                                    let formatter = DateFormatter()
+                                    formatter.dateFormat = "d"
+                                    let day = formatter.string(from: sub.nextPaymentDate)
+                                    let nthDay = "\(day)\(daySuffix(from: day))"
+
+                                    SubscriptionRow(
+                                        icon: sub.category == 0 ? "play.tv.fill" : "bolt.fill",
+                                        iconColor: Color.primaryColor,
+                                        bgColor: Color.primaryContainer.opacity(0.1),
+                                        title: sub.serviceName,
+                                        subtext: "\(sub.cycle == 0 ? "Monthly" : "Yearly") • Renewing on \(nthDay)",
+                                        amount: String(format: "$%.2f", sub.amount)
+                                    )
+                                }
+                            }
                         }
                         .padding(.horizontal, 24)
                     }
@@ -92,7 +135,7 @@ struct SubscriptionsView: View {
                             .opacity(0.7)
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text("$").font(.custom("Inter", size: 14).weight(.medium)).opacity(0.6)
-                            Text("1,121.96").font(.custom("Inter", size: 24).weight(.black)).tracking(-0.5)
+                            Text(String(format: "%.2f", totalMonthlyFixedCost)).font(.custom("Inter", size: 24).weight(.black)).tracking(-0.5)
                         }
                     }
                     Spacer()
@@ -237,4 +280,20 @@ struct SubscriptionRow: View {
         .background(Color.surfaceContainerLow)
         .cornerRadius(16)
     }
+}
+
+func daySuffix(from dayString: String) -> String {
+    if let day = Int(dayString) {
+        switch day {
+        case 11, 12, 13: return "th"
+        default:
+            switch day % 10 {
+            case 1: return "st"
+            case 2: return "nd"
+            case 3: return "rd"
+            default: return "th"
+            }
+        }
+    }
+    return ""
 }

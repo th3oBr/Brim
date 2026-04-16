@@ -1,11 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct LogTransactionView: View {
     @Environment(\.dismiss) var dismiss
-    @State private var amount: String = "0.00"
+    @Environment(\.modelContext) private var modelContext
+    @State private var amount: String = ""
     @State private var merchant: String = ""
     @State private var date: Date = Date()
-    @State private var category: String = "Dining"
+    @State private var category: String = "Dining & Drinks"
+
+    let categories = ["Dining & Drinks", "Groceries", "Transport", "Shopping", "Entertainment"]
 
     var body: some View {
         VStack(spacing: 0) {
@@ -66,18 +70,13 @@ struct LogTransactionView: View {
                                     .tracking(1)
                                     .foregroundColor(Color.onSurfaceVariant)
 
-                                HStack {
-                                    Image(systemName: "calendar")
-                                        .foregroundColor(Color.primaryColor)
-                                    Text("Today")
-                                        .font(.custom("Inter", size: 18).weight(.medium))
-                                    Spacer()
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(Color.outlineVariant)
-                                }
-                                .padding(20)
-                                .background(Color.surfaceContainerLow)
-                                .cornerRadius(16)
+                                DatePicker("", selection: $date, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .accentColor(.primaryColor)
+                                    .padding(.vertical, 14)
+                                    .padding(.horizontal, 20)
+                                    .background(Color.surfaceContainerLow)
+                                    .cornerRadius(16)
                             }
 
                             // Category Display
@@ -87,22 +86,16 @@ struct LogTransactionView: View {
                                     .tracking(1)
                                     .foregroundColor(Color.onSurfaceVariant)
 
-                                HStack {
-                                    Circle()
-                                        .fill(Color.tertiaryFixed)
-                                        .frame(width: 32, height: 32)
-                                        .overlay(
-                                            Image(systemName: "fork.knife")
-                                                .foregroundColor(Color.tertiary)
-                                                .font(.system(size: 14))
-                                        )
-                                    Text("Dining")
-                                        .font(.custom("Inter", size: 18).weight(.medium))
-                                    Spacer()
-                                    Image(systemName: "chevron.up.chevron.down")
-                                        .foregroundColor(Color.outlineVariant)
+                                Picker("Category", selection: $category) {
+                                    ForEach(categories, id: \.self) { cat in
+                                        Text(cat).tag(cat)
+                                    }
                                 }
-                                .padding(20)
+                                .pickerStyle(.menu)
+                                .accentColor(.onSurface)
+                                .font(.custom("Inter", size: 16).weight(.medium))
+                                .padding(.vertical, 14)
+                                .padding(.horizontal, 20)
                                 .background(Color.surfaceContainerLow)
                                 .cornerRadius(16)
                             }
@@ -110,7 +103,12 @@ struct LogTransactionView: View {
                     }
 
                     // Submit Button
-                    Button(action: { dismiss() }) {
+                    Button(action: {
+                        let amountValue = Double(amount) ?? 0.0
+                        let newTransaction = Transaction(amount: amountValue, merchant: merchant, date: date, category: category)
+                        modelContext.insert(newTransaction)
+                        dismiss()
+                    }) {
                         Text("Log Transaction")
                             .font(.custom("Inter", size: 18).weight(.bold))
                             .frame(maxWidth: .infinity)

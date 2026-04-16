@@ -1,8 +1,36 @@
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
     @State private var spendType: Int = 0 // 0 = Variable, 1 = Fixed
     @Binding var showLogTransaction: Bool
+
+    @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
+
+    var dailyAllowance: Double = 120.0
+    var monthlyBudget: Double = 3000.0
+
+    var spentToday: Double {
+        let calendar = Calendar.current
+        return transactions.filter { calendar.isDateInToday($0.date) }.reduce(0) { $0 + $1.amount }
+    }
+
+    var spentThisMonth: Double {
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month], from: Date())
+        if let startOfMonth = calendar.date(from: components) {
+            return transactions.filter { $0.date >= startOfMonth }.reduce(0) { $0 + $1.amount }
+        }
+        return 0
+    }
+
+    var availableToSpend: Double {
+        return max(0, monthlyBudget - spentThisMonth)
+    }
+
+    var dailySpentRatio: Double {
+        return min(spentToday / dailyAllowance, 1.0)
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -14,7 +42,7 @@ struct HomeView: View {
                         .foregroundColor(Color.onSurfaceVariant)
 
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text("$2,480.00")
+                        Text(String(format: "$%.2f", availableToSpend))
                             .font(.custom("Inter", size: 48).weight(.heavy))
                             .tracking(-1)
                             .foregroundColor(Color.onSurface)
@@ -33,7 +61,7 @@ struct HomeView: View {
                             .frame(width: 140, height: 140)
 
                         Circle()
-                            .trim(from: 0, to: 0.7) // Represents spent portion (e.g., $36 of $120)
+                            .trim(from: 0, to: CGFloat(dailySpentRatio))
                             .stroke(
                                 LinearGradient(colors: [Color.primaryColor, Color.primaryContainer], startPoint: .top, endPoint: .bottom),
                                 style: StrokeStyle(lineWidth: 12, lineCap: .round)
@@ -42,7 +70,7 @@ struct HomeView: View {
                             .rotationEffect(.degrees(-90))
 
                         VStack(spacing: 0) {
-                            Text("$84")
+                            Text(String(format: "$%.0f", max(0, dailyAllowance - spentToday)))
                                 .font(.custom("Inter", size: 30).weight(.bold))
                                 .foregroundColor(Color.onSurface)
                             Text("LEFT TODAY")
@@ -57,24 +85,24 @@ struct HomeView: View {
                             Text("Daily Allowance")
                                 .font(.custom("Inter", size: 20).weight(.bold))
                                 .tracking(-0.5)
-                            Text("You've spent **$36** of your $120 daily limit. Great pace!")
+                            Text("You've spent **$\(String(format: "%.0f", spentToday))** of your $\(String(format: "%.0f", dailyAllowance)) daily limit. Great pace!")
                                 .font(.custom("Inter", size: 14))
                                 .foregroundColor(Color.onSurfaceVariant)
                                 .lineLimit(3)
                         }
 
                         HStack(spacing: 8) {
-                            Image(systemName: "checkmark.circle.fill")
+                            Image(systemName: spentToday > dailyAllowance ? "exclamationmark.circle.fill" : "checkmark.circle.fill")
                                 .font(.system(size: 14))
-                                .foregroundColor(Color.onSecondaryContainer)
-                            Text("UNDER BUDGET")
+                                .foregroundColor(spentToday > dailyAllowance ? Color.onErrorContainer : Color.onSecondaryContainer)
+                            Text(spentToday > dailyAllowance ? "OVER BUDGET" : "UNDER BUDGET")
                                 .font(.custom("Inter", size: 12).weight(.bold))
                                 .tracking(0.5)
-                                .foregroundColor(Color.onSecondaryContainer)
+                                .foregroundColor(spentToday > dailyAllowance ? Color.onErrorContainer : Color.onSecondaryContainer)
                         }
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(Color.secondaryContainer)
+                        .background(spentToday > dailyAllowance ? Color.errorContainer : Color.secondaryContainer)
                         .cornerRadius(20)
                     }
                 }
@@ -117,42 +145,33 @@ struct HomeView: View {
 
                     // Transactions
                     VStack(spacing: 24) {
-                        // Today Group
-                        VStack(spacing: 12) {
-                            HStack {
-                                Text("TODAY")
-                                    .font(.custom("Inter", size: 12).weight(.bold))
-                                    .tracking(1)
-                                    .foregroundColor(Color.onSurfaceVariant)
-                                Spacer()
-                                Text("-$52.40")
-                                    .font(.custom("Inter", size: 12).weight(.medium))
-                                    .foregroundColor(Color.onSurfaceVariant)
-                            }
-                            .padding(.horizontal, 8)
-
+                        if transactions.isEmpty {
+                            Text("No transactions yet.")
+                                .font(.custom("Inter", size: 16))
+                                .foregroundColor(Color.onSurfaceVariant)
+                                .padding()
+                        } else {
+                            // Simplify to a single list of recent transactions for now
                             VStack(spacing: 12) {
-                                TransactionRow(icon: "cup.and.saucer.fill", merchant: "Blue Bottle Coffee", category: "Dining & Drinks", amount: "-$6.50")
-                                TransactionRow(icon: "bag.fill", merchant: "Whole Foods Market", category: "Groceries", amount: "-$45.90")
-                            }
-                        }
+                                HStack {
+                                    Text("RECENT")
+                                        .font(.custom("Inter", size: 12).weight(.bold))
+                                        .tracking(1)
+                                        .foregroundColor(Color.onSurfaceVariant)
+                                    Spacer()
+                                }
+                                .padding(.horizontal, 8)
 
-                        // Yesterday Group
-                        VStack(spacing: 12) {
-                            HStack {
-                                Text("YESTERDAY")
-                                    .font(.custom("Inter", size: 12).weight(.bold))
-                                    .tracking(1)
-                                    .foregroundColor(Color.onSurfaceVariant)
-                                Spacer()
-                                Text("-$12.00")
-                                    .font(.custom("Inter", size: 12).weight(.medium))
-                                    .foregroundColor(Color.onSurfaceVariant)
-                            }
-                            .padding(.horizontal, 8)
-
-                            VStack(spacing: 12) {
-                                TransactionRow(icon: "tram.fill", merchant: "MTA Transit", category: "Transport", amount: "-$12.00")
+                                VStack(spacing: 12) {
+                                    ForEach(transactions) { transaction in
+                                        TransactionRow(
+                                            icon: getIconForCategory(transaction.category),
+                                            merchant: transaction.merchant,
+                                            category: transaction.category,
+                                            amount: String(format: "-$%.2f", transaction.amount)
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -279,5 +298,16 @@ struct TransactionRow: View {
         .background(Color.surfaceContainerLowest)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.02), radius: 10, y: 4)
+    }
+}
+
+func getIconForCategory(_ category: String) -> String {
+    switch category {
+    case "Dining & Drinks": return "cup.and.saucer.fill"
+    case "Groceries": return "bag.fill"
+    case "Transport": return "tram.fill"
+    case "Shopping": return "cart.fill"
+    case "Entertainment": return "play.tv.fill"
+    default: return "dollarsign.circle.fill"
     }
 }

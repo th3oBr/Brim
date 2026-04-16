@@ -45,7 +45,10 @@ struct ContentView: View {
             }
 
             // Custom Tab Bar Overlay
-            BottomNavBar(selectedTab: $selectedTab)
+            VStack {
+                Spacer()
+                BottomNavBar(selectedTab: $selectedTab)
+            }
         }
         .fullScreenCover(isPresented: $showLogTransaction) {
             LogTransactionView()
