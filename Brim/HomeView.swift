@@ -6,13 +6,18 @@ struct HomeView: View {
     @Binding var showLogTransaction: Bool
 
     @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
-
-    var dailyAllowance: Double = 120.0
-    var monthlyBudget: Double = 3000.0
+    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
 
     var spentToday: Double {
         let calendar = Calendar.current
         return transactions.filter { calendar.isDateInToday($0.date) }.reduce(0) { $0 + $1.amount }
+    }
+
+    var dailyAllowance: Double {
+        let calendar = Calendar.current
+        let range = calendar.range(of: .day, in: .month, for: Date())!
+        let numDays = Double(range.count)
+        return monthlyBudget / numDays
     }
 
     var spentThisMonth: Double {
@@ -163,7 +168,7 @@ struct HomeView: View {
                                 .padding(.horizontal, 8)
 
                                 VStack(spacing: 12) {
-                                    ForEach(transactions) { transaction in
+                                    ForEach(transactions.filter { $0.isFixed == (spendType == 1) }.prefix(10)) { transaction in
                                         TransactionRow(
                                             icon: getIconForCategory(transaction.category),
                                             merchant: transaction.merchant,

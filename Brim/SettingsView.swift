@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @AppStorage("userName") private var userName: String = "Alex Richardson"
+    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -23,25 +26,13 @@ struct SettingsView: View {
                         )
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Alex Richardson")
+                        TextField("Your Name", text: $userName)
                             .font(.custom("Inter", size: 18).weight(.bold))
                             .foregroundColor(Color.onSurface)
-                        Text("alex.richardson@example.com")
-                            .font(.custom("Inter", size: 14))
-                            .foregroundColor(Color.onSurfaceVariant)
+                            .autocorrectionDisabled()
                     }
 
                     Spacer()
-
-                    Button(action: {}) {
-                        Text("Edit Profile")
-                            .font(.custom("Inter", size: 14).weight(.semibold))
-                            .foregroundColor(Color.onPrimary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(Color.primaryColor)
-                            .clipShape(Capsule())
-                    }
                 }
                 .padding(24)
                 .background(Color.surfaceContainerLowest)
@@ -50,6 +41,7 @@ struct SettingsView: View {
 
                 // Preferences
                 SettingsGroup(title: "Preferences") {
+                    SettingsBudgetRow(icon: "chart.bar.fill", title: "Monthly Budget", budget: $monthlyBudget)
                     SettingsRow(icon: "banknote", title: "Currency", value: "USD ($)")
                     SettingsRow(icon: "globe", title: "Language", value: "English")
                     SettingsRow(icon: "circle.lefthalf.filled", title: "Theme", value: "System")
@@ -130,21 +122,7 @@ struct SettingsView: View {
                     SettingsRow(icon: "doc.text", title: "Terms of Service", value: nil)
                 }
 
-                // Sign Out
                 VStack(spacing: 24) {
-                    Button(action: {}) {
-                        HStack {
-                            Image(systemName: "rectangle.portrait.and.arrow.right")
-                            Text("Sign Out")
-                        }
-                        .font(.custom("Inter", size: 16).weight(.bold))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.errorContainer)
-                        .foregroundColor(Color.onErrorContainer)
-                        .cornerRadius(12)
-                    }
-
                     Text("BRIM v2.4.1 (Build 882)")
                         .font(.custom("Inter", size: 10))
                         .foregroundColor(Color.onSurfaceVariant)
@@ -208,6 +186,33 @@ struct SettingsRow: View {
             Image(systemName: isExternal ? "arrow.up.right" : "chevron.right")
                 .font(.system(size: 14))
                 .foregroundColor(Color.outline)
+        }
+        .padding(16)
+    }
+}
+
+struct SettingsBudgetRow: View {
+    var icon: String
+    var title: String
+    @Binding var budget: Double
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(Color.primaryColor)
+                .frame(width: 24)
+            Text(title)
+                .font(.custom("Inter", size: 16).weight(.medium))
+                .foregroundColor(Color.onSurface)
+
+            Spacer()
+
+            TextField("Budget", value: $budget, format: .currency(code: "USD"))
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .font(.custom("Inter", size: 14))
+                .foregroundColor(Color.onSurfaceVariant)
+                .frame(width: 100)
         }
         .padding(16)
     }
