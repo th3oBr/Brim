@@ -1,0 +1,283 @@
+import SwiftUI
+
+struct HomeView: View {
+    @State private var spendType: Int = 0 // 0 = Variable, 1 = Fixed
+    @Binding var showLogTransaction: Bool
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 40) {
+                // Hero Section
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Available to Spend")
+                        .font(.custom("Inter", size: 16).weight(.medium))
+                        .foregroundColor(Color.onSurfaceVariant)
+
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("$2,480.00")
+                            .font(.custom("Inter", size: 48).weight(.heavy))
+                            .tracking(-1)
+                            .foregroundColor(Color.onSurface)
+                        Text("/ month")
+                            .font(.custom("Inter", size: 16).weight(.medium))
+                            .foregroundColor(Color.onSurfaceVariant)
+                    }
+                }
+                .padding(.horizontal, 24)
+
+                // Gauge Section
+                HStack(spacing: 24) {
+                    ZStack {
+                        Circle()
+                            .stroke(Color.surfaceContainerHighest, lineWidth: 12)
+                            .frame(width: 140, height: 140)
+
+                        Circle()
+                            .trim(from: 0, to: 0.7) // Represents spent portion (e.g., $36 of $120)
+                            .stroke(
+                                LinearGradient(colors: [Color.primaryColor, Color.primaryContainer], startPoint: .top, endPoint: .bottom),
+                                style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                            )
+                            .frame(width: 140, height: 140)
+                            .rotationEffect(.degrees(-90))
+
+                        VStack(spacing: 0) {
+                            Text("$84")
+                                .font(.custom("Inter", size: 30).weight(.bold))
+                                .foregroundColor(Color.onSurface)
+                            Text("LEFT TODAY")
+                                .font(.custom("Inter", size: 10).weight(.bold))
+                                .tracking(1)
+                                .foregroundColor(Color.onSurfaceVariant)
+                        }
+                    }
+
+                    VStack(alignment: .leading, spacing: 16) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Daily Allowance")
+                                .font(.custom("Inter", size: 20).weight(.bold))
+                                .tracking(-0.5)
+                            Text("You've spent **$36** of your $120 daily limit. Great pace!")
+                                .font(.custom("Inter", size: 14))
+                                .foregroundColor(Color.onSurfaceVariant)
+                                .lineLimit(3)
+                        }
+
+                        HStack(spacing: 8) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color.onSecondaryContainer)
+                            Text("UNDER BUDGET")
+                                .font(.custom("Inter", size: 12).weight(.bold))
+                                .tracking(0.5)
+                                .foregroundColor(Color.onSecondaryContainer)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.secondaryContainer)
+                        .cornerRadius(20)
+                    }
+                }
+                .padding(24)
+                .background(Color.surfaceContainerLow)
+                .cornerRadius(24)
+                .padding(.horizontal, 24)
+
+                // Segmented Control & List
+                VStack(spacing: 24) {
+                    // Segmented Control
+                    HStack(spacing: 0) {
+                        Button(action: { spendType = 0 }) {
+                            Text("Variable")
+                                .font(.custom("Inter", size: 14).weight(spendType == 0 ? .bold : .semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .foregroundColor(spendType == 0 ? Color.primaryColor : Color.onSurfaceVariant)
+                                .background(spendType == 0 ? Color.surfaceContainerLowest : Color.clear)
+                                .cornerRadius(20)
+                                .shadow(color: spendType == 0 ? Color.black.opacity(0.05) : Color.clear, radius: 2, y: 1)
+                        }
+
+                        Button(action: { spendType = 1 }) {
+                            Text("Fixed")
+                                .font(.custom("Inter", size: 14).weight(spendType == 1 ? .bold : .semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .foregroundColor(spendType == 1 ? Color.primaryColor : Color.onSurfaceVariant)
+                                .background(spendType == 1 ? Color.surfaceContainerLowest : Color.clear)
+                                .cornerRadius(20)
+                                .shadow(color: spendType == 1 ? Color.black.opacity(0.05) : Color.clear, radius: 2, y: 1)
+                        }
+                    }
+                    .padding(4)
+                    .background(Color.surfaceContainerHigh)
+                    .cornerRadius(24)
+                    .frame(maxWidth: 300)
+                    .padding(.horizontal, 24)
+
+                    // Transactions
+                    VStack(spacing: 24) {
+                        // Today Group
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("TODAY")
+                                    .font(.custom("Inter", size: 12).weight(.bold))
+                                    .tracking(1)
+                                    .foregroundColor(Color.onSurfaceVariant)
+                                Spacer()
+                                Text("-$52.40")
+                                    .font(.custom("Inter", size: 12).weight(.medium))
+                                    .foregroundColor(Color.onSurfaceVariant)
+                            }
+                            .padding(.horizontal, 8)
+
+                            VStack(spacing: 12) {
+                                TransactionRow(icon: "cup.and.saucer.fill", merchant: "Blue Bottle Coffee", category: "Dining & Drinks", amount: "-$6.50")
+                                TransactionRow(icon: "bag.fill", merchant: "Whole Foods Market", category: "Groceries", amount: "-$45.90")
+                            }
+                        }
+
+                        // Yesterday Group
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("YESTERDAY")
+                                    .font(.custom("Inter", size: 12).weight(.bold))
+                                    .tracking(1)
+                                    .foregroundColor(Color.onSurfaceVariant)
+                                Spacer()
+                                Text("-$12.00")
+                                    .font(.custom("Inter", size: 12).weight(.medium))
+                                    .foregroundColor(Color.onSurfaceVariant)
+                            }
+                            .padding(.horizontal, 8)
+
+                            VStack(spacing: 12) {
+                                TransactionRow(icon: "tram.fill", merchant: "MTA Transit", category: "Transport", amount: "-$12.00")
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 24)
+                }
+
+                // Insights Bento
+                HStack(spacing: 16) {
+                    VStack(alignment: .leading) {
+                        Image(systemName: "chart.line.down.forward")
+                            .font(.system(size: 32))
+                            .padding(.bottom, 16)
+
+                        Text("SAVING TREND")
+                            .font(.custom("Inter", size: 10).weight(.bold))
+                            .tracking(1)
+                            .opacity(0.8)
+                        Text("12% Down")
+                            .font(.custom("Inter", size: 24).weight(.black))
+                            .padding(.vertical, 2)
+                        Text("vs last month")
+                            .font(.custom("Inter", size: 12))
+                            .opacity(0.8)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(24)
+                    .background(Color.primaryContainer)
+                    .foregroundColor(Color.onPrimaryContainer)
+                    .cornerRadius(24)
+
+                    VStack(alignment: .leading) {
+                        HStack(spacing: -8) {
+                            Circle().fill(Color.gray).frame(width: 32, height: 32)
+                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
+                            Circle().fill(Color.gray.opacity(0.8)).frame(width: 32, height: 32)
+                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
+                            Circle().fill(Color.surfaceContainerLowest).frame(width: 32, height: 32)
+                                .overlay(Text("+3").font(.system(size: 10, weight: .bold)).foregroundColor(Color.primaryColor))
+                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
+                        }
+                        .padding(.bottom, 24)
+
+                        Text("SHARED WITH")
+                            .font(.custom("Inter", size: 10).weight(.bold))
+                            .tracking(1)
+                            .foregroundColor(Color.onSurfaceVariant)
+                        Text("Family Group")
+                            .font(.custom("Inter", size: 18).weight(.bold))
+                            .foregroundColor(Color.onSurface)
+                            .padding(.vertical, 2)
+                        Text("Joint variable spend")
+                            .font(.custom("Inter", size: 12))
+                            .foregroundColor(Color.onSurfaceVariant)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(24)
+                    .background(Color.surfaceContainerHigh)
+                    .cornerRadius(24)
+                }
+                .padding(.horizontal, 24)
+
+                Spacer().frame(height: 140) // Bottom Nav spacing
+            }
+            .padding(.top, 100) // Top App bar spacing
+        }
+        .background(Color.surface)
+        .overlay(
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: { showLogTransaction = true }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 32, weight: .medium))
+                            .foregroundColor(Color.onPrimary)
+                            .frame(width: 64, height: 64)
+                            .background(
+                                LinearGradient(colors: [Color.primaryColor, Color.primaryContainer], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                            .clipShape(Circle())
+                            .shadow(color: Color.primaryColor.opacity(0.3), radius: 15, x: 0, y: 8)
+                    }
+                    .padding(.trailing, 24)
+                    .padding(.bottom, 100)
+                }
+            }
+        )
+    }
+}
+
+struct TransactionRow: View {
+    var icon: String
+    var merchant: String
+    var category: String
+    var amount: String
+
+    var body: some View {
+        HStack(spacing: 16) {
+            Circle()
+                .fill(Color.surfaceContainer)
+                .frame(width: 48, height: 48)
+                .overlay(
+                    Image(systemName: icon)
+                        .foregroundColor(Color.primaryColor)
+                        .font(.system(size: 20))
+                )
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(merchant)
+                    .font(.custom("Inter", size: 16).weight(.medium))
+                    .foregroundColor(Color.onSurface)
+                Text(category)
+                    .font(.custom("Inter", size: 12))
+                    .foregroundColor(Color.onSurfaceVariant)
+            }
+
+            Spacer()
+
+            Text(amount)
+                .font(.custom("Inter", size: 16).weight(.bold))
+                .foregroundColor(Color.onSurface)
+        }
+        .padding(16)
+        .background(Color.surfaceContainerLowest)
+        .cornerRadius(16)
+        .shadow(color: Color.black.opacity(0.02), radius: 10, y: 4)
+    }
+}
