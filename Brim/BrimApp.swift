@@ -10,9 +10,15 @@ import SwiftData
 
 @main
 struct BrimApp: App {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if hasCompletedOnboarding {
+                ContentView()
+            } else {
+                OnboardingView()
+            }
         }
         .modelContainer(for: [Transaction.self, Subscription.self])
     }
