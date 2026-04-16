@@ -1,7 +1,9 @@
 import SwiftUI
+import SwiftData
 
 struct AddSubscriptionView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) private var modelContext
     @State private var amount: String = ""
     @State private var serviceName: String = ""
     @State private var cycle: Int = 0
@@ -162,7 +164,12 @@ struct AddSubscriptionView: View {
                         .cornerRadius(16)
 
                         // Submit Button
-                        Button(action: { dismiss() }) {
+                        Button(action: {
+                            let amountValue = Double(amount) ?? 0.0
+                            let newSubscription = Subscription(amount: amountValue, serviceName: serviceName, cycle: cycle, category: category, nextPaymentDate: date, reminder: reminder)
+                            modelContext.insert(newSubscription)
+                            dismiss()
+                        }) {
                             Text("Add Subscription")
                                 .font(.custom("Inter", size: 18).weight(.bold))
                                 .frame(maxWidth: .infinity)
