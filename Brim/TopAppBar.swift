@@ -4,6 +4,7 @@ struct TopAppBar: View {
     var title: String
     var showBackButton: Bool = false
     var action: (() -> Void)? = nil
+    var onNotificationTap: (() -> Void)? = nil
 
     var body: some View {
         HStack {
@@ -22,20 +23,6 @@ struct TopAppBar: View {
                 }
             } else {
                 HStack(spacing: 12) {
-                    Image(systemName: "person.crop.circle.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 32, height: 32)
-                        .foregroundColor(Color.primaryColor)
-                        .clipShape(Circle())
-                        .overlay(
-                            Circle()
-                                .stroke(Color.surfaceContainerHigh, lineWidth: 1)
-                        )
-                        .background(
-                            Circle().fill(Color.surfaceContainerHigh)
-                        )
-
                     Text(title)
                         .font(.custom("Inter", size: 18).weight(.black))
                         .tracking(-0.5)
@@ -47,7 +34,7 @@ struct TopAppBar: View {
 
             if !showBackButton {
                 Button(action: {
-
+                    onNotificationTap?()
                 }) {
                     Image(systemName: "bell")
                         .font(.system(size: 20, weight: .medium))
