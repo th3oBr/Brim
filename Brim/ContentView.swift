@@ -13,14 +13,8 @@ struct ContentView: View {
                 case .home:
                     HomeView(showLogTransaction: $showLogTransaction)
                 case .analytics:
-                    VStack {
-                        TopAppBar(title: "Analytics")
-                        Spacer()
-                        Text("Analytics Content Placeholder")
-                            .foregroundColor(Color.onSurfaceVariant)
-                        Spacer()
-                    }
-                    .background(Color.surface)
+                    AnalyticsView()
+                        .padding(.top, 64) // Make room for the TopAppBar
                 case .subscriptions:
                     SubscriptionsView(showAddSubscription: $showAddSubscription)
                 case .settings:
