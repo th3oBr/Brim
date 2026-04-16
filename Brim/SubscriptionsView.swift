@@ -49,6 +49,28 @@ struct SubscriptionsView: View {
                     }
                     .padding(.horizontal, 24)
 
+                    // Summary Card
+                    VStack {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("TOTAL MONTHLY FIXED COST")
+                                    .font(.custom("Inter", size: 10).weight(.bold))
+                                    .tracking(1)
+                                    .opacity(0.8)
+                                    .foregroundColor(Color.onPrimaryContainer)
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    Text("$").font(.custom("Inter", size: 14).weight(.medium)).opacity(0.8).foregroundColor(Color.onPrimaryContainer)
+                                    Text(String(format: "%.2f", totalMonthlyFixedCost)).font(.custom("Inter", size: 32).weight(.black)).tracking(-0.5).foregroundColor(Color.onPrimary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .padding(24)
+                        .background(Color.primaryContainer)
+                        .cornerRadius(16)
+                    }
+                    .padding(.horizontal, 24)
+
                     // Warning / Upcoming Section
                     VStack(alignment: .leading, spacing: 16) {
                         HStack {
@@ -109,10 +131,31 @@ struct SubscriptionsView: View {
                                     let day = formatter.string(from: sub.nextPaymentDate)
                                     let nthDay = "\(day)\(daySuffix(from: day))"
 
+                                    let iconName: String
+                                    let iColor: Color
+                                    let bColor: Color
+                                    if sub.serviceName.localizedCaseInsensitiveContains("Spotify") {
+                                        iconName = "music.note"
+                                        iColor = Color.secondary
+                                        bColor = Color.secondaryContainer.opacity(0.2)
+                                    } else if sub.serviceName.localizedCaseInsensitiveContains("iCloud") {
+                                        iconName = "cloud.fill"
+                                        iColor = Color.primaryColor
+                                        bColor = Color.primaryContainer.opacity(0.1)
+                                    } else if sub.serviceName.localizedCaseInsensitiveContains("ChatGPT") {
+                                        iconName = "gearshape.fill"
+                                        iColor = Color.onSurface
+                                        bColor = Color.surfaceContainerHighest
+                                    } else {
+                                        iconName = sub.category == 0 ? "play.tv.fill" : "bolt.fill"
+                                        iColor = Color.primaryColor
+                                        bColor = Color.primaryContainer.opacity(0.1)
+                                    }
+
                                     SubscriptionRow(
-                                        icon: sub.category == 0 ? "play.tv.fill" : "bolt.fill",
-                                        iconColor: Color.primaryColor,
-                                        bgColor: Color.primaryContainer.opacity(0.1),
+                                        icon: iconName,
+                                        iconColor: iColor,
+                                        bgColor: bColor,
                                         title: sub.serviceName,
                                         subtext: "\(sub.cycle == 0 ? "Monthly" : "Yearly") • Renewing on \(nthDay)",
                                         amount: String(format: "$%.2f", sub.amount)
@@ -128,41 +171,6 @@ struct SubscriptionsView: View {
                 .padding(.top, 100)
             }
             .background(Color.surface)
-
-            // Persistent Total Footer
-            VStack {
-                HStack(spacing: 0) {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("TOTAL MONTHLY FIXED COST")
-                            .font(.custom("Inter", size: 10).weight(.bold))
-                            .tracking(1)
-                            .opacity(0.7)
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text("$").font(.custom("Inter", size: 14).weight(.medium)).opacity(0.6)
-                            Text(String(format: "%.2f", totalMonthlyFixedCost)).font(.custom("Inter", size: 24).weight(.black)).tracking(-0.5)
-                        }
-                    }
-                    Spacer()
-                    Text("WITHIN BUDGET")
-                        .font(.custom("Inter", size: 11).weight(.bold))
-                        .foregroundColor(Color.secondaryFixedDim)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(Color.onSecondaryContainer.opacity(0.2))
-                        .overlay(Capsule().stroke(Color.secondary.opacity(0.2), lineWidth: 1))
-                        .clipShape(Capsule())
-                }
-                .padding(24)
-                .background(
-                    Color.inverseSurface.opacity(0.95)
-                        .background(.ultraThinMaterial)
-                )
-                .foregroundColor(Color.inverseOnSurface)
-                .cornerRadius(16)
-                .shadow(color: Color.black.opacity(0.2), radius: 20, y: 10)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 120) // Nav bar spacing
-            }
 
             // FAB
             VStack {
@@ -181,7 +189,7 @@ struct SubscriptionsView: View {
                             .shadow(color: Color.primaryColor.opacity(0.3), radius: 15, x: 0, y: 8)
                     }
                     .padding(.trailing, 24)
-                    .padding(.bottom, 220)
+                    .padding(.bottom, 112)
                 }
             }
         }
