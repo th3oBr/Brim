@@ -110,7 +110,7 @@ struct SettingsView: View {
                 }
 
                 // Notifications & Security
-                HStack(alignment: .top, spacing: 24) {
+                VStack( spacing: 24) {
                     SettingsGroup(title: "Notifications") {
                         SettingsToggleRow(icon: "bell.slash", title: "Silent confirmation", isOn: false)
                         SettingsToggleRow(icon: "calendar.badge.clock", title: "Bill Reminders", isOn: true)
