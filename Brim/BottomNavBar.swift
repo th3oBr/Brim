@@ -20,7 +20,7 @@ struct BottomNavBar: View {
     @Binding var selectedTab: Tab
 
     var body: some View {
-        HStack {
+        HStack () {
             ForEach(Tab.allCases, id: \.self) { tab in
                 Spacer()
                 Button(action: {
@@ -50,6 +50,7 @@ struct BottomNavBar: View {
         }
         .padding(.top, 12)
         .padding(.bottom, 32) // safe area spacing
+        .padding(.horizontal, 20)
         .background(
             Color.surfaceBright.opacity(0.8)
                 .background(.ultraThinMaterial)

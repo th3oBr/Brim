@@ -186,7 +186,7 @@ struct SubscriptionsView: View {
                             .shadow(color: Color.primaryColor.opacity(0.3), radius: 15, x: 0, y: 8)
                     }
                     .padding(.trailing, 24)
-                    .padding(.bottom, 112)
+                    .padding(.bottom, 136)
                 }
             }
         }
