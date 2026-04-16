@@ -178,60 +178,30 @@ struct HomeView: View {
                     .padding(.horizontal, 24)
                 }
 
-                // Insights Bento
-                HStack(spacing: 16) {
-                    VStack(alignment: .leading) {
+                HStack(alignment: .center) {
+                        VStack(alignment: .leading){
+                            Text("SAVING TREND")
+                                .font(.custom("Inter", size: 10).weight(.bold))
+                                .tracking(1)
+                                .opacity(0.8)
+                            Text("12% Down")
+                                .font(.custom("Inter", size: 24).weight(.black))
+                                .padding(.vertical, 2)
+                            Text("vs last month")
+                                .font(.custom("Inter", size: 12))
+                                .opacity(0.8)
+                        }
+                        Spacer()
                         Image(systemName: "arrow.down.right")
                             .font(.system(size: 32))
                             .padding(.bottom, 16)
-
-                        Text("SAVING TREND")
-                            .font(.custom("Inter", size: 10).weight(.bold))
-                            .tracking(1)
-                            .opacity(0.8)
-                        Text("12% Down")
-                            .font(.custom("Inter", size: 24).weight(.black))
-                            .padding(.vertical, 2)
-                        Text("vs last month")
-                            .font(.custom("Inter", size: 12))
-                            .opacity(0.8)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(24)
                     .background(Color.primaryContainer)
                     .foregroundColor(Color.onPrimaryContainer)
                     .cornerRadius(24)
-
-                    VStack(alignment: .leading) {
-                        HStack(spacing: -8) {
-                            Circle().fill(Color.gray).frame(width: 32, height: 32)
-                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
-                            Circle().fill(Color.gray.opacity(0.8)).frame(width: 32, height: 32)
-                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
-                            Circle().fill(Color.surfaceContainerLowest).frame(width: 32, height: 32)
-                                .overlay(Text("+3").font(.system(size: 10, weight: .bold)).foregroundColor(Color.primaryColor))
-                                .overlay(Circle().stroke(Color.surface, lineWidth: 2))
-                        }
-                        .padding(.bottom, 24)
-
-                        Text("SHARED WITH")
-                            .font(.custom("Inter", size: 10).weight(.bold))
-                            .tracking(1)
-                            .foregroundColor(Color.onSurfaceVariant)
-                        Text("Family Group")
-                            .font(.custom("Inter", size: 18).weight(.bold))
-                            .foregroundColor(Color.onSurface)
-                            .padding(.vertical, 2)
-                        Text("Joint variable spend")
-                            .font(.custom("Inter", size: 12))
-                            .foregroundColor(Color.onSurfaceVariant)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(24)
-                    .background(Color.surfaceContainerHigh)
-                    .cornerRadius(24)
-                }
-                .padding(.horizontal, 24)
+                    .padding(.horizontal, 24)
 
                 Spacer().frame(height: 140) // Bottom Nav spacing
             }

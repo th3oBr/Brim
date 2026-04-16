@@ -183,28 +183,6 @@ struct AddSubscriptionView: View {
                         }
                     }
                     .padding(.horizontal, 24)
-
-                    // Info Card
-                    HStack(alignment: .top, spacing: 16) {
-                        Image(systemName: "heart.text.square.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(Color.secondary)
-
-                        Text("Adding subscriptions helps Brim identify **unused services** and suggests ways to optimize your monthly recurring expenses.")
-                            .font(.custom("Inter", size: 14))
-                            .foregroundColor(Color.onSecondaryFixedVariant)
-                            .lineSpacing(4)
-                    }
-                    .padding(24)
-                    .background(Color.secondaryContainer.opacity(0.1))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color.secondaryContainer.opacity(0.2), lineWidth: 1)
-                    )
-                    .cornerRadius(16)
-                    .padding(.horizontal, 24)
-
-                    Spacer().frame(height: 40)
                 }
             }
             .background(Color.surface)

@@ -131,27 +131,24 @@ struct SubscriptionsView: View {
                                     let day = formatter.string(from: sub.nextPaymentDate)
                                     let nthDay = "\(day)\(daySuffix(from: day))"
 
-                                    let iconName: String
-                                    let iColor: Color
-                                    let bColor: Color
-                                    if sub.serviceName.localizedCaseInsensitiveContains("Spotify") {
-                                        iconName = "music.note"
-                                        iColor = Color.secondary
-                                        bColor = Color.secondaryContainer.opacity(0.2)
-                                    } else if sub.serviceName.localizedCaseInsensitiveContains("iCloud") {
-                                        iconName = "cloud.fill"
-                                        iColor = Color.primaryColor
-                                        bColor = Color.primaryContainer.opacity(0.1)
-                                    } else if sub.serviceName.localizedCaseInsensitiveContains("ChatGPT") {
-                                        iconName = "gearshape.fill"
-                                        iColor = Color.onSurface
-                                        bColor = Color.surfaceContainerHighest
-                                    } else {
-                                        iconName = sub.category == 0 ? "play.tv.fill" : "bolt.fill"
-                                        iColor = Color.primaryColor
-                                        bColor = Color.primaryContainer.opacity(0.1)
-                                    }
-
+                                    let (iconName, iColor, bColor): (String, Color, Color) = {
+                                        let name = sub.serviceName.lowercased()
+                                        
+                                        switch name {
+                                        case _ where name.contains("spotify"):
+                                            return ("music.note", .secondary, .secondaryContainer.opacity(0.2))
+                                            
+                                        case _ where name.contains("icloud"):
+                                            return ("cloud.fill", .primaryColor, .primaryContainer.opacity(0.1))
+                                            
+                                        case _ where name.contains("chatgpt"):
+                                            return ("gearshape.fill", .onSurface, .surfaceContainerHighest)
+                                            
+                                        default:
+                                            let icon = sub.category == 0 ? "play.tv.fill" : "bolt.fill"
+                                            return (icon, .primaryColor, .primaryContainer.opacity(0.1))
+                                        }
+                                    }()
                                     SubscriptionRow(
                                         icon: iconName,
                                         iconColor: iColor,
