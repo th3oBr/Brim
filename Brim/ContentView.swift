@@ -4,6 +4,7 @@ struct ContentView: View {
     @State private var selectedTab: Tab = .home
     @State private var showLogTransaction: Bool = false
     @State private var showAddSubscription: Bool = false
+    @State private var showNotifications: Bool = false
 
     var body: some View {
         ZStack {
@@ -30,8 +31,14 @@ struct ContentView: View {
             // Let's place a global TopAppBar for the screens that don't embed it (Home and Subs designs show 'Brim' and 'Settings').
 
             VStack {
-                if selectedTab == .home || selectedTab == .subscriptions || selectedTab == .analytics {
-                    TopAppBar(title: "Brim")
+                if selectedTab == .home {
+                    TopAppBar(title: "Welcome Back, XYZ", onNotificationTap: {
+                        showNotifications = true
+                    })
+                } else if selectedTab == .subscriptions || selectedTab == .analytics {
+                    TopAppBar(title: "Brim", onNotificationTap: {
+                        showNotifications = true
+                    })
                 } else if selectedTab == .settings {
                     TopAppBar(title: "Settings")
                 }
@@ -49,6 +56,9 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showAddSubscription) {
             AddSubscriptionView()
+        }
+        .sheet(isPresented: $showNotifications) {
+            NotificationsView()
         }
         .edgesIgnoringSafeArea(.bottom) // Let BottomNavBar handle its own safe area
     }
