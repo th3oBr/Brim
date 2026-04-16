@@ -9,7 +9,7 @@ enum Tab: String, CaseIterable {
     var iconName: String {
         switch self {
         case .home: return "house"
-        case .analytics: return "chart.xyaxis.line"
+        case .analytics: return "chart.bar"
         case .subscriptions: return "doc.plaintext"
         case .settings: return "gearshape"
         }

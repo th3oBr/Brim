@@ -6,10 +6,11 @@ struct SettingsView: View {
             VStack(spacing: 32) {
                 // Profile Section
                 HStack(spacing: 16) {
-                    Image("profile_placeholder") // Replace with actual image later
+                    Image(systemName: "person.crop.square.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame(width: 64, height: 64)
+                        .foregroundColor(Color.primaryColor)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         .overlay(
                             RoundedRectangle(cornerRadius: 16)
