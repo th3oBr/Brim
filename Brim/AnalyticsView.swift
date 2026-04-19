@@ -4,6 +4,7 @@ import SwiftData
 struct AnalyticsView: View {
     @Query(sort: \Transaction.date, order: .reverse) private var allTransactions: [Transaction]
     @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     @State private var selectedMonth: Date = Date()
 
@@ -75,7 +76,7 @@ struct AnalyticsView: View {
                     .padding(.horizontal, 24)
 
                 // Cumulative Spend Card
-                CumulativeSpendCard(spentThisMonth: spentThisMonth, monthlyBudget: monthlyBudget, selectedMonth: selectedMonth)
+                CumulativeSpendCard(spentThisMonth: spentThisMonth, monthlyBudget: monthlyBudget, selectedMonth: selectedMonth, transactionsForMonth: transactionsForMonth)
                     .padding(.horizontal, 24)
 
                 // Top Categories Card
@@ -102,6 +103,7 @@ struct AnalyticsView: View {
 struct VsLastMonthCard: View {
     var spentThisMonth: Double
     var spentLastMonth: Double
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var difference: Double {
         spentThisMonth - spentLastMonth
@@ -120,7 +122,8 @@ struct VsLastMonthCard: View {
                     .foregroundColor(Color.onSurfaceVariant)
 
                 HStack(alignment: .firstTextBaseline, spacing: 12) {
-                    Text(String(format: "%@$%.2f", difference > 0 ? "+" : "", difference))
+                    let prefix = difference > 0 ? "+" : (difference < 0 ? "-" : "")
+                    Text(String(format: "%@%@%.2f", prefix, currencySymbol, abs(difference)))
                         .font(.custom("Inter", size: 28).weight(.bold))
                         .foregroundColor(Color.onSurface)
 
@@ -162,6 +165,8 @@ struct CumulativeSpendCard: View {
     var spentThisMonth: Double
     var monthlyBudget: Double
     var selectedMonth: Date
+    var transactionsForMonth: [Transaction]
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var dailyAvg: Double {
         let calendar = Calendar.current
@@ -178,6 +183,25 @@ struct CumulativeSpendCard: View {
         }
     }
 
+    var chartData: [(day: Int, cumulative: Double)] {
+        let calendar = Calendar.current
+        guard let range = calendar.range(of: .day, in: .month, for: selectedMonth) else { return [] }
+        let numDays = range.count
+
+        var data: [(Int, Double)] = []
+        var cumulative = 0.0
+
+        for day in 1...numDays {
+            let dailyTransactions = transactionsForMonth.filter { calendar.component(.day, from: $0.date) == day }
+            let dailyTotal = dailyTransactions.reduce(0) { $0 + $1.amount }
+            cumulative += dailyTotal
+            data.append((day, cumulative))
+
+            if calendar.isDate(Date(), equalTo: selectedMonth, toGranularity: .month) && day == calendar.component(.day, from: Date()) { break }
+        }
+        return data
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack(alignment: .top) {
@@ -186,7 +210,7 @@ struct CumulativeSpendCard: View {
                         .font(.custom("Inter", size: 22).weight(.bold))
                         .foregroundColor(Color.onSurface)
 
-                    Text("Real-time tracking\nagainst $\(String(format: "%.0f", monthlyBudget)) monthly\ngoal")
+                    Text("Real-time tracking\nagainst \(currencySymbol)\(String(format: "%.0f", monthlyBudget)) monthly\ngoal")
                         .font(.custom("Inter", size: 14))
                         .foregroundColor(Color.onSurfaceVariant)
                 }
@@ -222,32 +246,61 @@ struct CumulativeSpendCard: View {
 
                     // Solid line for actual
                     Path { path in
-                        let w = geo.size.width
-                        let h = geo.size.height
-                        path.move(to: CGPoint(x: 0, y: h * 0.85))
-                        path.addQuadCurve(to: CGPoint(x: w * 0.2, y: h * 0.7), control: CGPoint(x: w * 0.1, y: h * 0.8))
-                        path.addQuadCurve(to: CGPoint(x: w * 0.4, y: h * 0.55), control: CGPoint(x: w * 0.3, y: h * 0.6))
-                        path.addQuadCurve(to: CGPoint(x: w * 0.6, y: h * 0.55), control: CGPoint(x: w * 0.5, y: h * 0.45))
-                        path.addQuadCurve(to: CGPoint(x: w * 0.8, y: h * 0.4), control: CGPoint(x: w * 0.7, y: h * 0.65))
-                        path.addQuadCurve(to: CGPoint(x: w, y: h * 0.2), control: CGPoint(x: w * 0.9, y: h * 0.25))
+                        guard !chartData.isEmpty else { return }
+
+                        let width = geo.size.width
+                        let height = geo.size.height
+                        let calendar = Calendar.current
+                        let range = calendar.range(of: .day, in: .month, for: selectedMonth)!
+                        let numDays = CGFloat(range.count)
+                        let maxY = max(monthlyBudget, chartData.max(by: { $0.cumulative < $1.cumulative })?.cumulative ?? 0)
+
+                        if maxY == 0 { return }
+
+                        for (index, point) in chartData.enumerated() {
+                            let x = (CGFloat(point.day) / numDays) * width
+                            let y = height - (CGFloat(point.cumulative) / maxY) * height
+
+                            if index == 0 {
+                                path.move(to: CGPoint(x: x, y: y))
+                            } else {
+                                path.addLine(to: CGPoint(x: x, y: y))
+                            }
+                        }
                     }
-                    .stroke(Color.primaryColor, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
+                    .stroke(Color.primaryColor, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
 
                     // Tooltip
-                    VStack {
-                        Text("OCT 24")
-                            .font(.custom("Inter", size: 9).weight(.bold))
-                            .foregroundColor(Color.onSurfaceVariant)
-                        Text("$3,240.12")
-                            .font(.custom("Inter", size: 14).weight(.black))
-                            .foregroundColor(Color.onSurface)
+                    if let lastPoint = chartData.last {
+                        let width = geo.size.width
+                        let height = geo.size.height
+                        let calendar = Calendar.current
+                        let range = calendar.range(of: .day, in: .month, for: selectedMonth)!
+                        let numDays = CGFloat(range.count)
+                        let maxY = max(monthlyBudget, chartData.max(by: { $0.cumulative < $1.cumulative })?.cumulative ?? 0)
+
+                        if maxY > 0 {
+                            let x = (CGFloat(lastPoint.day) / numDays) * width
+                            let y = height - (CGFloat(lastPoint.cumulative) / maxY) * height
+
+                            VStack {
+                                let df = DateFormatter()
+                                df.dateFormat = "MMM"
+                                Text("\(df.string(from: selectedMonth).uppercased()) \(lastPoint.day)")
+                                    .font(.custom("Inter", size: 9).weight(.bold))
+                                    .foregroundColor(Color.onSurfaceVariant)
+                                Text(String(format: "%@%.2f", currencySymbol, lastPoint.cumulative))
+                                    .font(.custom("Inter", size: 14).weight(.black))
+                                    .foregroundColor(Color.onSurface)
+                            }
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(Color.surfaceContainerLowest)
+                            .cornerRadius(8)
+                            .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
+                            .position(x: min(max(x, 40), width - 40), y: max(y - 40, 20))
+                        }
                     }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.surfaceContainerLowest)
-                    .cornerRadius(8)
-                    .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 4)
-                    .position(x: geo.size.width * 0.6, y: geo.size.height * 0.35)
                 }
             }
             .frame(height: 180)
@@ -259,7 +312,7 @@ struct CumulativeSpendCard: View {
                     Text("CURRENT")
                         .font(.custom("Inter", size: 10).weight(.bold))
                         .foregroundColor(Color.onSurfaceVariant)
-                    Text(String(format: "$%.0f", spentThisMonth))
+                    Text(String(format: "%@%.0f", currencySymbol, spentThisMonth))
                         .font(.custom("Inter", size: 18).weight(.bold))
                         .foregroundColor(Color.onSurface)
                 }
@@ -269,7 +322,7 @@ struct CumulativeSpendCard: View {
                     Text("REMAINING")
                         .font(.custom("Inter", size: 10).weight(.bold))
                         .foregroundColor(Color.onSurfaceVariant)
-                    Text(String(format: "$%.0f", max(0, monthlyBudget - spentThisMonth)))
+                    Text(String(format: "%@%.0f", currencySymbol, max(0, monthlyBudget - spentThisMonth)))
                         .font(.custom("Inter", size: 18).weight(.bold))
                         .foregroundColor(Color.secondary)
                 }
@@ -279,7 +332,7 @@ struct CumulativeSpendCard: View {
                     Text("DAILY AVG")
                         .font(.custom("Inter", size: 10).weight(.bold))
                         .foregroundColor(Color.onSurfaceVariant)
-                    Text(String(format: "$%.0f", dailyAvg))
+                    Text(String(format: "%@%.0f", currencySymbol, dailyAvg))
                         .font(.custom("Inter", size: 18).weight(.bold))
                         .foregroundColor(Color.onSurface)
                 }
@@ -295,6 +348,7 @@ struct CumulativeSpendCard: View {
 struct TopCategoriesCard: View {
     var transactions: [Transaction]
     var totalSpent: Double
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var categoryTotals: [(String, Double)] {
         var totals: [String: Double] = [:]
@@ -351,7 +405,7 @@ struct TopCategoriesCard: View {
                 }
 
                 VStack(spacing: 2) {
-                    Text(String(format: "$%.0f", totalSpent))
+                    Text(String(format: "%@%.0f", currencySymbol, totalSpent))
                         .font(.custom("Inter", size: 28).weight(.black))
                         .foregroundColor(Color.onSurface)
                     Text("TOTAL")
@@ -402,6 +456,7 @@ struct TopCategoriesCard: View {
 struct SmartPredictionCard: View {
     var spentThisMonth: Double
     var spentLastMonth: Double
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var difference: Double {
         spentLastMonth - spentThisMonth
@@ -424,20 +479,20 @@ struct SmartPredictionCard: View {
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
             } else if difference > 0 {
-                Text("You're on track to save $\(String(format: "%.0f", difference)) more than last month.")
+                Text("You're on track to save \(currencySymbol)\(String(format: "%.0f", difference)) more than last month.")
                     .font(.custom("Inter", size: 24).weight(.bold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
-                Text("Based on your current trajectory, we recommend moving $\(String(format: "%.0f", difference * 0.5)) into your High Yield Savings.")
+                Text("Based on your current trajectory, we recommend moving \(currencySymbol)\(String(format: "%.0f", difference * 0.5)) into your High Yield Savings.")
                     .font(.custom("Inter", size: 14))
                     .foregroundColor(Color.white.opacity(0.8))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 8)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text("You've spent $\(String(format: "%.0f", abs(difference))) more than last month.")
+                Text("You've spent \(currencySymbol)\(String(format: "%.0f", abs(difference))) more than last month.")
                     .font(.custom("Inter", size: 24).weight(.bold))
                     .foregroundColor(.white)
                     .multilineTextAlignment(.center)
@@ -471,6 +526,7 @@ struct SmartPredictionCard: View {
 
 struct UnusualActivitySection: View {
     var transactions: [Transaction]
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var highestTransaction: Transaction? {
         transactions.max(by: { $0.amount < $1.amount })
@@ -507,7 +563,7 @@ struct UnusualActivitySection: View {
                         Spacer()
 
                         VStack(alignment: .trailing, spacing: 4) {
-                            Text(String(format: "$%.2f", maxTx.amount))
+                            Text(String(format: "%@%.2f", currencySymbol, maxTx.amount))
                                 .font(.custom("Inter", size: 16).weight(.bold))
                                 .foregroundColor(Color.tertiary)
                             Text(maxTx.isFixed ? "FIXED" : "VARIABLE")
