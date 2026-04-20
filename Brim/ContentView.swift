@@ -5,6 +5,7 @@ struct ContentView: View {
     @State private var showLogTransaction: Bool = false
     @State private var showAddSubscription: Bool = false
     @State private var showNotifications: Bool = false
+    @State private var transactionToEdit: Transaction?
     
     @AppStorage("userName") var fullName: String = "User";
 
@@ -14,7 +15,7 @@ struct ContentView: View {
             Group {
                 switch selectedTab {
                 case .home:
-                    HomeView(showLogTransaction: $showLogTransaction, showAddSubscription: $showAddSubscription)
+                    HomeView(showLogTransaction: $showLogTransaction, showAddSubscription: $showAddSubscription, transactionToEdit: $transactionToEdit)
                 case .analytics:
                     AnalyticsView()
                         .padding(.top, 64) // Make room for the TopAppBar
@@ -53,6 +54,9 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showLogTransaction) {
             LogTransactionView()
+        }
+        .fullScreenCover(item: $transactionToEdit) { txn in
+            LogTransactionView(transactionToEdit: txn)
         }
         .fullScreenCover(isPresented: $showAddSubscription) {
             AddSubscriptionView()

@@ -313,9 +313,9 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, 24)
                     }
-                    
+
                 }
-                
+
                 Spacer().frame(height: 140) // Bottom Nav spacing
             }
             .padding(.top, 100) // Top App bar spacing
@@ -444,7 +444,6 @@ struct WarningCard: View {
             }
         }
         .padding(20)
-        .background(Color.surfaceContainerLowest)
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.03), radius: 15, y: 4)
         .overlay(
