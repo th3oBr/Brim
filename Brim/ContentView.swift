@@ -20,8 +20,6 @@ struct ContentView: View {
                         .padding(.top, 64) // Make room for the TopAppBar
                 case .settings:
                     SettingsView()
-                default:
-                    EmptyView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -35,7 +33,7 @@ struct ContentView: View {
             VStack {
                         if selectedTab == .home {
                             // 2. Use string interpolation to put the name in the title
-                            TopAppBar(title: "Welcome Back, \(fullName)", onNotificationTap: {
+                            TopAppBar(title: "Welcome \(fullName)", onNotificationTap: {
                                 showNotifications = true
                             })
                         } else if selectedTab == .analytics {

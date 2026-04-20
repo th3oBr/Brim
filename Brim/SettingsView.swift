@@ -81,71 +81,15 @@ struct SettingsView: View {
                     SettingsRow(icon: "circle.lefthalf.filled", title: "Theme", value: "System")
                 }
 
-                // Shortcuts Integration
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("SHORTCUTS INTEGRATION")
-                        .font(.custom("Inter", size: 12).weight(.bold))
-                        .tracking(1)
-                        .foregroundColor(Color.onSurfaceVariant)
-                        .padding(.horizontal, 4)
-
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
-                            Image(systemName: "bolt.fill")
-                                .foregroundColor(Color.onPrimary)
-                                .padding(8)
-                                .background(Color.onPrimary.opacity(0.2))
-                                .cornerRadius(8)
-
-                            Spacer()
-
-                            Toggle("", isOn: .constant(true))
-                                .labelsHidden()
-                                .tint(Color.white)
-                        }
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Log Transaction Shortcut")
-                                .font(.custom("Inter", size: 18).weight(.bold))
-                                .foregroundColor(Color.onPrimary)
-                            Text("Automatically trigger the spend logger when you tap your phone on registered NFC tags or use Siri commands.")
-                                .font(.custom("Inter", size: 14))
-                                .foregroundColor(Color.onPrimary.opacity(0.8))
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        Button(action: {}) {
-                            HStack {
-                                Image(systemName: "antenna.radiowaves.left.and.right")
-                                Text("Manage Automation")
-                                    .font(.custom("Inter", size: 14).weight(.semibold))
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .foregroundColor(Color.onPrimary)
-                            .background(Color.white.opacity(0.1))
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.white.opacity(0.2), lineWidth: 1))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding(24)
-                    .background(
-                        LinearGradient(colors: [Color.primaryColor, Color.primaryContainer], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .cornerRadius(16)
-                    .shadow(color: Color.primaryColor.opacity(0.2), radius: 15, y: 8)
-                }
-
                 // Notifications & Security
                 VStack( spacing: 24) {
                     SettingsGroup(title: "Notifications") {
                         SettingsToggleRow(icon: "bell.slash", title: "Silent confirmation", isOn: false)
                         SettingsToggleRow(icon: "calendar.badge.clock", title: "Bill Reminders", isOn: true)
                     }
-
-                    SettingsGroup(title: "Security") {
-                        SettingsToggleRow(icon: "faceid", title: "FaceID Login", isOn: true)
-                        SettingsRow(icon: "lock.shield", title: "Change Passcode", value: nil)
+                    
+                    SettingsGroup(title: "Shortcuts") {
+                        SettingsToggleRow(icon: "bell.slash", title: "Apple Pay Integration", isOn: false)
                     }
                 }
 

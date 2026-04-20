@@ -71,14 +71,14 @@ struct AnalyticsView: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 16)
 
-                // Vs Last Month Card
-                VsLastMonthCard(spentThisMonth: spentThisMonth, spentLastMonth: spentLastMonth)
-                    .padding(.horizontal, 24)
-
                 // Cumulative Spend Card
                 CumulativeSpendCard(spentThisMonth: spentThisMonth, monthlyBudget: monthlyBudget, selectedMonth: selectedMonth, transactionsForMonth: transactionsForMonth)
                     .padding(.horizontal, 24)
 
+                // Vs Last Month Card
+                VsLastMonthCard(spentThisMonth: spentThisMonth, spentLastMonth: spentLastMonth)
+                    .padding(.horizontal, 24)
+                
                 // Top Categories Card
                 TopCategoriesCard(transactions: transactionsForMonth, totalSpent: spentThisMonth)
                     .padding(.horizontal, 24)
