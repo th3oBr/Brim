@@ -315,34 +315,9 @@ struct HomeView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 24)
+                    
                 }
-
-                HStack(alignment: .center) {
-                        VStack(alignment: .leading){
-                            Text("SAVING TREND")
-                                .font(.custom("Inter", size: 10).weight(.bold))
-                                .tracking(1)
-                                .opacity(0.8)
-                            Text("12% Down")
-                                .font(.custom("Inter", size: 24).weight(.black))
-                                .padding(.vertical, 2)
-                            Text("vs last month")
-                                .font(.custom("Inter", size: 12))
-                                .opacity(0.8)
-                        }
-                        Spacer()
-                        Image(systemName: "arrow.down.right")
-                            .font(.system(size: 32))
-                            .padding(.bottom, 16)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(24)
-                    .background(Color.primaryContainer)
-                    .foregroundColor(Color.onPrimaryContainer)
-                    .cornerRadius(24)
-                    .padding(.horizontal, 24)
-
+                
                 Spacer().frame(height: 140) // Bottom Nav spacing
             }
             .padding(.top, 100) // Top App bar spacing

@@ -83,10 +83,6 @@ struct AnalyticsView: View {
                 TopCategoriesCard(transactions: transactionsForMonth, totalSpent: spentThisMonth)
                     .padding(.horizontal, 24)
 
-                // Smart Prediction Card
-                SmartPredictionCard(spentThisMonth: spentThisMonth, spentLastMonth: spentLastMonth)
-                    .padding(.horizontal, 24)
-
                 // Unusual Activity Section
                 UnusualActivitySection(transactions: transactionsForMonth)
                     .padding(.horizontal, 24)
@@ -282,10 +278,14 @@ struct CumulativeSpendCard: View {
                         if maxY > 0 {
                             let x = (CGFloat(lastPoint.day) / numDays) * width
                             let y = height - (CGFloat(lastPoint.cumulative) / maxY) * height
-
+                            
+                            let df: DateFormatter = {
+                                    let df = DateFormatter()
+                                    df.dateFormat = "MMM"
+                                    return df
+                                }()
+                            
                             VStack {
-                                let df = DateFormatter()
-                                df.dateFormat = "MMM"
                                 Text("\(df.string(from: selectedMonth).uppercased()) \(lastPoint.day)")
                                     .font(.custom("Inter", size: 9).weight(.bold))
                                     .foregroundColor(Color.onSurfaceVariant)
@@ -450,77 +450,6 @@ struct TopCategoriesCard: View {
         .background(Color.surfaceContainerLowest)
         .cornerRadius(24)
         .shadow(color: Color.black.opacity(0.04), radius: 25, x: 0, y: 10)
-    }
-}
-
-struct SmartPredictionCard: View {
-    var spentThisMonth: Double
-    var spentLastMonth: Double
-    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
-
-    var difference: Double {
-        spentLastMonth - spentThisMonth
-    }
-
-    var body: some View {
-        VStack(alignment: .center, spacing: 16) {
-            Text("SMART PREDICTION")
-                .font(.custom("Inter", size: 10).weight(.bold))
-                .foregroundColor(.white)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.white.opacity(0.2))
-                .cornerRadius(16)
-
-            if spentLastMonth == 0 {
-                Text("Keep logging your transactions to get smart predictions.")
-                    .font(.custom("Inter", size: 20).weight(.bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else if difference > 0 {
-                Text("You're on track to save \(currencySymbol)\(String(format: "%.0f", difference)) more than last month.")
-                    .font(.custom("Inter", size: 24).weight(.bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("Based on your current trajectory, we recommend moving \(currencySymbol)\(String(format: "%.0f", difference * 0.5)) into your High Yield Savings.")
-                    .font(.custom("Inter", size: 14))
-                    .foregroundColor(Color.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
-                    .fixedSize(horizontal: false, vertical: true)
-            } else {
-                Text("You've spent \(currencySymbol)\(String(format: "%.0f", abs(difference))) more than last month.")
-                    .font(.custom("Inter", size: 24).weight(.bold))
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .fixedSize(horizontal: false, vertical: true)
-
-                Text("Consider reviewing your Variable expenses to keep your savings goals on track.")
-                    .font(.custom("Inter", size: 14))
-                    .foregroundColor(Color.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 8)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-
-            Button(action: {}) {
-                Text("Transfer Funds")
-                    .font(.custom("Inter", size: 16).weight(.bold))
-                    .foregroundColor(Color.primaryColor)
-                    .padding(.vertical, 16)
-                    .padding(.horizontal, 24)
-                    .background(Color.white)
-                    .cornerRadius(16)
-            }
-            .padding(.top, 8)
-        }
-        .padding(32)
-        .frame(maxWidth: .infinity)
-        .background(Color.primaryColor)
-        .cornerRadius(24)
     }
 }
 

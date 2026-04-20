@@ -78,15 +78,6 @@ struct WelcomeScreen: View {
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 32)
-
-                    Button(action: {
-                        // Action for Sign In (Not required for this task)
-                    }) {
-                        Text("Sign In")
-                            .font(.custom("Inter", size: 16).weight(.semibold))
-                            .foregroundColor(Color.primaryColor)
-                    }
-                    .padding(.bottom, 32)
                 }
 
                 Text("PREMIUM FINANCIAL INTELLIGENCE")
@@ -94,6 +85,7 @@ struct WelcomeScreen: View {
                     .tracking(2)
                     .foregroundColor(Color.outline)
                     .padding(.bottom, 24)
+                    .padding(.top, 24)
             }
         }
     }
@@ -102,8 +94,9 @@ struct WelcomeScreen: View {
 struct ProfileSetupScreen: View {
     @Binding var hasCompletedOnboarding: Bool
     var onBack: (() -> Void)? = nil
-    @State private var fullName: String = ""
-    @State private var selectedCurrency: String = "USD"
+  
+    @AppStorage("userName") var fullName: String = ""
+    @AppStorage("currencyCode") var selectedCurrency: String = "USD"
 
     var body: some View {
         ZStack {

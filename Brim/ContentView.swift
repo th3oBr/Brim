@@ -5,6 +5,8 @@ struct ContentView: View {
     @State private var showLogTransaction: Bool = false
     @State private var showAddSubscription: Bool = false
     @State private var showNotifications: Bool = false
+    
+    @AppStorage("userName") var fullName: String = "User";
 
     var body: some View {
         ZStack {
@@ -31,20 +33,20 @@ struct ContentView: View {
             // Let's place a global TopAppBar for the screens that don't embed it (Home and Subs designs show 'Brim' and 'Settings').
 
             VStack {
-                if selectedTab == .home {
-                    TopAppBar(title: "Welcome Back, XYZ", onNotificationTap: {
-                        showNotifications = true
-                    })
-                } else if selectedTab == .analytics {
-                    TopAppBar(title: "Brim", onNotificationTap: {
-                        showNotifications = true
-                    })
-                } else if selectedTab == .settings {
-                    TopAppBar(title: "Settings")
-                }
-                Spacer()
-            }
-
+                        if selectedTab == .home {
+                            // 2. Use string interpolation to put the name in the title
+                            TopAppBar(title: "Welcome Back, \(fullName)", onNotificationTap: {
+                                showNotifications = true
+                            })
+                        } else if selectedTab == .analytics {
+                            TopAppBar(title: "Brim", onNotificationTap: {
+                                showNotifications = true
+                            })
+                        } else if selectedTab == .settings {
+                            TopAppBar(title: "Settings")
+                        }
+                        Spacer()
+                    }
             // Custom Tab Bar Overlay
             VStack {
                 Spacer()
