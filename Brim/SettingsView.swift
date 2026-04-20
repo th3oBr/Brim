@@ -3,6 +3,12 @@ import SwiftUI
 struct SettingsView: View {
     @AppStorage("userName") private var userName: String = "Alex Richardson"
     @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
+    @AppStorage("currencyCode") private var currencyCode: String = "USD"
+
+    let currencies = [
+        ("USD", "$"), ("EUR", "€"), ("GBP", "£"), ("JPY", "¥")
+    ]
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -41,8 +47,36 @@ struct SettingsView: View {
 
                 // Preferences
                 SettingsGroup(title: "Preferences") {
-                    SettingsBudgetRow(icon: "chart.bar.fill", title: "Monthly Budget", budget: $monthlyBudget)
-                    SettingsRow(icon: "banknote", title: "Currency", value: "USD ($)")
+                    SettingsBudgetRow(icon: "chart.bar.fill", title: "Monthly Budget", budget: $monthlyBudget, currencyCode: currencyCode)
+
+                    HStack(spacing: 12) {
+                        Image(systemName: "banknote")
+                            .foregroundColor(Color.primaryColor)
+                            .frame(width: 24)
+                        Text("Currency")
+                            .font(.custom("Inter", size: 16).weight(.medium))
+                            .foregroundColor(Color.onSurface)
+
+                        Spacer()
+
+                        Picker("Currency", selection: Binding(
+                            get: { self.currencyCode },
+                            set: { newValue in
+                                self.currencyCode = newValue
+                                if let symbol = currencies.first(where: { $0.0 == newValue })?.1 {
+                                    self.currencySymbol = symbol
+                                }
+                            }
+                        )) {
+                            ForEach(currencies, id: \.0) { currency in
+                                Text("\(currency.0) (\(currency.1))").tag(currency.0)
+                            }
+                        }
+                        .tint(Color.onSurfaceVariant)
+                    }
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+
                     SettingsRow(icon: "globe", title: "Language", value: "English")
                     SettingsRow(icon: "circle.lefthalf.filled", title: "Theme", value: "System")
                 }
@@ -195,6 +229,7 @@ struct SettingsBudgetRow: View {
     var icon: String
     var title: String
     @Binding var budget: Double
+    var currencyCode: String
 
     var body: some View {
         HStack(spacing: 12) {
@@ -207,7 +242,7 @@ struct SettingsBudgetRow: View {
 
             Spacer()
 
-            TextField("Budget", value: $budget, format: .currency(code: "USD"))
+            TextField("Budget", value: $budget, format: .currency(code: currencyCode))
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .font(.custom("Inter", size: 14))

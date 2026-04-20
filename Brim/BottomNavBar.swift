@@ -3,14 +3,12 @@ import SwiftUI
 enum Tab: String, CaseIterable {
     case home = "Home"
     case analytics = "Analytics"
-    case subscriptions = "Subscriptions"
     case settings = "Settings"
 
     var iconName: String {
         switch self {
         case .home: return "house"
         case .analytics: return "chart.bar"
-        case .subscriptions: return "doc.plaintext"
         case .settings: return "gearshape"
         }
     }

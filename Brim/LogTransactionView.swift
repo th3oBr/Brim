@@ -8,6 +8,8 @@ struct LogTransactionView: View {
     @State private var merchant: String = ""
     @State private var date: Date = Date()
     @State private var category: String = "Dining & Drinks"
+    @State private var type: Int = 0 // 0 = Expense, 1 = Income
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     let categories = ["Dining & Drinks", "Groceries", "Transport", "Shopping", "Entertainment"]
 
@@ -19,14 +21,44 @@ struct LogTransactionView: View {
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 32) {
+                    // Segmented Control for Type
+                    HStack(spacing: 0) {
+                        Button(action: { type = 0 }) {
+                            Text("Expense")
+                                .font(.custom("Inter", size: 14).weight(type == 0 ? .bold : .semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .foregroundColor(type == 0 ? Color.primaryColor : Color.onSurfaceVariant)
+                                .background(type == 0 ? Color.surfaceContainerLowest : Color.clear)
+                                .cornerRadius(20)
+                                .shadow(color: type == 0 ? Color.black.opacity(0.05) : Color.clear, radius: 2, y: 1)
+                        }
+
+                        Button(action: { type = 1 }) {
+                            Text("Income")
+                                .font(.custom("Inter", size: 14).weight(type == 1 ? .bold : .semibold))
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 8)
+                                .foregroundColor(type == 1 ? Color.primaryColor : Color.onSurfaceVariant)
+                                .background(type == 1 ? Color.surfaceContainerLowest : Color.clear)
+                                .cornerRadius(20)
+                                .shadow(color: type == 1 ? Color.black.opacity(0.05) : Color.clear, radius: 2, y: 1)
+                        }
+                    }
+                    .padding(4)
+                    .background(Color.surfaceContainerHigh)
+                    .cornerRadius(24)
+                    .frame(maxWidth: 300)
+                    .padding(.top, 24)
+
                     // Amount Section
                     VStack(spacing: 8) {
-                        Text("Transaction Amount")
+                        Text(type == 0 ? "Transaction Amount" : "Income Amount")
                             .font(.custom("Inter", size: 14).weight(.medium))
                             .foregroundColor(Color.onSurfaceVariant)
 
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text("$")
+                            Text(currencySymbol)
                                 .font(.custom("Inter", size: 36).weight(.heavy))
                                 .foregroundColor(Color.primaryContainer)
 
@@ -38,7 +70,6 @@ struct LogTransactionView: View {
                                 .frame(width: 180)
                         }
                     }
-                    .padding(.top, 32)
 
                     // Form Elements
                     VStack(spacing: 16) {
@@ -104,12 +135,13 @@ struct LogTransactionView: View {
 
                     // Submit Button
                     Button(action: {
-                        let amountValue = Double(amount) ?? 0.0
-                        let newTransaction = Transaction(amount: amountValue, merchant: merchant, date: date, category: category)
+                        let parsedAmount = Double(amount) ?? 0.0
+                        let finalAmount = type == 0 ? parsedAmount : -parsedAmount
+                        let newTransaction = Transaction(amount: finalAmount, merchant: merchant, date: date, category: type == 0 ? category : "Income")
                         modelContext.insert(newTransaction)
                         dismiss()
                     }) {
-                        Text("Log Transaction")
+                        Text(type == 0 ? "Log Expense" : "Log Income")
                             .font(.custom("Inter", size: 18).weight(.bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 20)

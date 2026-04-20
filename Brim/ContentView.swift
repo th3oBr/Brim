@@ -12,14 +12,14 @@ struct ContentView: View {
             Group {
                 switch selectedTab {
                 case .home:
-                    HomeView(showLogTransaction: $showLogTransaction)
+                    HomeView(showLogTransaction: $showLogTransaction, showAddSubscription: $showAddSubscription)
                 case .analytics:
                     AnalyticsView()
                         .padding(.top, 64) // Make room for the TopAppBar
-                case .subscriptions:
-                    SubscriptionsView(showAddSubscription: $showAddSubscription)
                 case .settings:
                     SettingsView()
+                default:
+                    EmptyView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -35,7 +35,7 @@ struct ContentView: View {
                     TopAppBar(title: "Welcome Back, XYZ", onNotificationTap: {
                         showNotifications = true
                     })
-                } else if selectedTab == .subscriptions || selectedTab == .analytics {
+                } else if selectedTab == .analytics {
                     TopAppBar(title: "Brim", onNotificationTap: {
                         showNotifications = true
                     })
