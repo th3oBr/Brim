@@ -4,6 +4,7 @@ import SwiftData
 struct LogTransactionView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) private var modelContext
+    var transactionToEdit: Transaction?
     @State private var amount: String = ""
     @State private var merchant: String = ""
     @State private var date: Date = Date()
@@ -15,7 +16,7 @@ struct LogTransactionView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            TopAppBar(title: "Brim", showBackButton: true, action: {
+            TopAppBar(title: transactionToEdit != nil ? "Edit Transaction" : "Brim", showBackButton: true, action: {
                 dismiss()
             })
 
@@ -137,11 +138,18 @@ struct LogTransactionView: View {
                     Button(action: {
                         let parsedAmount = Double(amount) ?? 0.0
                         let finalAmount = type == 0 ? parsedAmount : -parsedAmount
-                        let newTransaction = Transaction(amount: finalAmount, merchant: merchant, date: date, category: type == 0 ? category : "Income")
-                        modelContext.insert(newTransaction)
+                        if let transactionToEdit = transactionToEdit {
+                            transactionToEdit.amount = finalAmount
+                            transactionToEdit.merchant = merchant
+                            transactionToEdit.date = date
+                            transactionToEdit.category = type == 0 ? category : "Income"
+                        } else {
+                            let newTransaction = Transaction(amount: finalAmount, merchant: merchant, date: date, category: type == 0 ? category : "Income")
+                            modelContext.insert(newTransaction)
+                        }
                         dismiss()
                     }) {
-                        Text(type == 0 ? "Log Expense" : "Log Income")
+                        Text(transactionToEdit != nil ? "Save Changes" : (type == 0 ? "Log Expense" : "Log Income"))
                             .font(.custom("Inter", size: 18).weight(.bold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 20)
@@ -157,6 +165,15 @@ struct LogTransactionView: View {
                 .padding(24)
             }
             .background(Color.surface)
+            .onAppear {
+                if let transactionToEdit = transactionToEdit {
+                    amount = String(format: "%.2f", abs(transactionToEdit.amount))
+                    merchant = transactionToEdit.merchant
+                    date = transactionToEdit.date
+                    category = transactionToEdit.category == "Income" ? "Dining & Drinks" : transactionToEdit.category
+                    type = transactionToEdit.amount < 0 ? 1 : 0
+                }
+            }
         }
     }
 }

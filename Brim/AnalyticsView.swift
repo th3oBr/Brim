@@ -20,11 +20,11 @@ struct AnalyticsView: View {
     }
 
     var spentThisMonth: Double {
-        transactionsForMonth.reduce(0) { $0 + $1.amount }
+        transactionsForMonth.filter { $0.amount > 0 }.reduce(0) { $0 + $1.amount }
     }
 
     var spentLastMonth: Double {
-        transactionsForLastMonth.reduce(0) { $0 + $1.amount }
+        transactionsForLastMonth.filter { $0.amount > 0 }.reduce(0) { $0 + $1.amount }
     }
 
     private var monthFormatter: DateFormatter {
@@ -80,7 +80,7 @@ struct AnalyticsView: View {
                     .padding(.horizontal, 24)
 
                 // Top Categories Card
-                TopCategoriesCard(transactions: transactionsForMonth, totalSpent: spentThisMonth)
+                TopCategoriesCard(transactions: transactionsForMonth)
                     .padding(.horizontal, 24)
 
                 // Unusual Activity Section
@@ -188,7 +188,7 @@ struct CumulativeSpendCard: View {
         var cumulative = 0.0
 
         for day in 1...numDays {
-            let dailyTransactions = transactionsForMonth.filter { calendar.component(.day, from: $0.date) == day }
+            let dailyTransactions = transactionsForMonth.filter { calendar.component(.day, from: $0.date) == day && $0.amount > 0 }
             let dailyTotal = dailyTransactions.reduce(0) { $0 + $1.amount }
             cumulative += dailyTotal
             data.append((day, cumulative))
@@ -347,13 +347,16 @@ struct CumulativeSpendCard: View {
 
 struct TopCategoriesCard: View {
     var transactions: [Transaction]
-    var totalSpent: Double
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
+
+    var totalExpense: Double {
+        transactions.filter { $0.amount > 0 }.reduce(0) { $0 + $1.amount }
+    }
 
     var categoryTotals: [(String, Double)] {
         var totals: [String: Double] = [:]
         for t in transactions {
-            totals[t.category, default: 0] += t.amount
+            if t.amount > 0 { totals[t.category, default: 0] += t.amount }
         }
         return totals.sorted { $0.value > $1.value }
     }
@@ -376,10 +379,10 @@ struct TopCategoriesCard: View {
                     .stroke(Color.surfaceContainerHigh, lineWidth: 24)
                     .frame(width: 160, height: 160)
 
-                if totalSpent > 0 && categoryTotals.count > 0 {
-                    let cat1Ratio = categoryTotals.count > 0 ? (categoryTotals[0].1 / totalSpent) : 0
-                    let cat2Ratio = categoryTotals.count > 1 ? (categoryTotals[1].1 / totalSpent) : 0
-                    let cat3Ratio = categoryTotals.count > 2 ? (categoryTotals[2].1 / totalSpent) : 0
+                if totalExpense > 0 && categoryTotals.count > 0 {
+                    let cat1Ratio = categoryTotals.count > 0 ? (categoryTotals[0].1 / totalExpense) : 0
+                    let cat2Ratio = categoryTotals.count > 1 ? (categoryTotals[1].1 / totalExpense) : 0
+                    let cat3Ratio = categoryTotals.count > 2 ? (categoryTotals[2].1 / totalExpense) : 0
 
                     Circle()
                         .trim(from: 0.0, to: CGFloat(cat1Ratio))
@@ -405,7 +408,7 @@ struct TopCategoriesCard: View {
                 }
 
                 VStack(spacing: 2) {
-                    Text(String(format: "%@%.0f", currencySymbol, totalSpent))
+                    Text(String(format: "%@%.0f", currencySymbol, totalExpense))
                         .font(.custom("Inter", size: 28).weight(.black))
                         .foregroundColor(Color.onSurface)
                     Text("TOTAL")
@@ -424,13 +427,13 @@ struct TopCategoriesCard: View {
                         .foregroundColor(Color.onSurfaceVariant)
                 } else {
                     if categoryTotals.count > 0 {
-                        CategoryLegendRow(color: Color.primaryColor, title: categoryTotals[0].0, percentage: (categoryTotals[0].1 / totalSpent) * 100)
+                        CategoryLegendRow(color: Color.primaryColor, title: categoryTotals[0].0, percentage: (categoryTotals[0].1 / totalExpense) * 100)
                     }
                     if categoryTotals.count > 1 {
-                        CategoryLegendRow(color: Color.secondary, title: categoryTotals[1].0, percentage: (categoryTotals[1].1 / totalSpent) * 100)
+                        CategoryLegendRow(color: Color.secondary, title: categoryTotals[1].0, percentage: (categoryTotals[1].1 / totalExpense) * 100)
                     }
                     if categoryTotals.count > 2 {
-                        CategoryLegendRow(color: Color.tertiary, title: categoryTotals[2].0, percentage: (categoryTotals[2].1 / totalSpent) * 100)
+                        CategoryLegendRow(color: Color.tertiary, title: categoryTotals[2].0, percentage: (categoryTotals[2].1 / totalExpense) * 100)
                     }
                 }
             }
@@ -458,7 +461,7 @@ struct UnusualActivitySection: View {
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var highestTransaction: Transaction? {
-        transactions.max(by: { $0.amount < $1.amount })
+        transactions.filter { $0.amount > 0 }.max(by: { $0.amount < $1.amount })
     }
 
     var body: some View {
