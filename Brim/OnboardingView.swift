@@ -97,6 +97,7 @@ struct ProfileSetupScreen: View {
   
     @AppStorage("userName") var fullName: String = ""
     @AppStorage("currencyCode") var selectedCurrency: String = "USD"
+    @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var body: some View {
         ZStack {
@@ -214,6 +215,20 @@ struct ProfileSetupScreen: View {
                 Spacer()
                 VStack {
                     Button(action: {
+                        
+                        let currencies = [
+                            ("USD", "$"), ("EUR", "€"), ("GBP", "£"), ("JPY", "¥")
+                        ]
+                        
+                        for (code, symbol) in currencies {
+                            if code == selectedCurrency {
+                                currencySymbol = symbol
+                                break // Important: This stops the loop immediately once we find the match
+                            }
+                        }
+                        
+                        
+                        
                         withAnimation {
                             hasCompletedOnboarding = true
                         }

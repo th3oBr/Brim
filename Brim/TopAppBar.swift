@@ -31,21 +31,6 @@ struct TopAppBar: View {
             }
 
             Spacer()
-
-            if !showBackButton {
-                Button(action: {
-                    onNotificationTap?()
-                }) {
-                    Image(systemName: "bell")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(Color.onSurfaceVariant)
-                        .padding(8)
-                }
-            } else {
-                Text("New Entry")
-                    .font(.custom("Inter", size: 14).weight(.semibold))
-                    .foregroundColor(Color.outline)
-            }
         }
         .padding(.horizontal, 24)
         .frame(height: 64)

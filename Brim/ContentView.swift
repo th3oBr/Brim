@@ -34,13 +34,9 @@ struct ContentView: View {
             VStack {
                         if selectedTab == .home {
                             // 2. Use string interpolation to put the name in the title
-                            TopAppBar(title: "Welcome \(fullName)", onNotificationTap: {
-                                showNotifications = true
-                            })
+                            TopAppBar(title: "Welcome \(fullName)")
                         } else if selectedTab == .analytics {
-                            TopAppBar(title: "Brim", onNotificationTap: {
-                                showNotifications = true
-                            })
+                            TopAppBar(title: "Brim")
                         } else if selectedTab == .settings {
                             TopAppBar(title: "Settings")
                         }
@@ -60,9 +56,6 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showAddSubscription) {
             AddSubscriptionView()
-        }
-        .sheet(isPresented: $showNotifications) {
-            NotificationsView()
         }
         .edgesIgnoringSafeArea(.bottom) // Let BottomNavBar handle its own safe area
     }

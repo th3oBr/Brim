@@ -9,7 +9,7 @@ struct HomeView: View {
 
     @Query(sort: \Transaction.date, order: .reverse) private var transactions: [Transaction]
     @Query(sort: \Subscription.nextPaymentDate) private var subscriptions: [Subscription]
-    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
+    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 500.0
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
     var upcomingSubscriptions: [Subscription] {

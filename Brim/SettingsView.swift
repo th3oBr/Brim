@@ -2,7 +2,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("userName") private var userName: String = "Alex Richardson"
-    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 5000.0
+    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 500.0
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
     @AppStorage("currencyCode") private var currencyCode: String = "USD"
 
@@ -76,28 +76,11 @@ struct SettingsView: View {
                     }
                     .padding(.vertical, 8)
                     .padding(.horizontal, 16)
-
-                    SettingsRow(icon: "globe", title: "Language", value: "English")
-                    SettingsRow(icon: "circle.lefthalf.filled", title: "Theme", value: "System")
                 }
 
-                // Notifications & Security
-                VStack( spacing: 24) {
-                    SettingsGroup(title: "Notifications") {
-                        SettingsToggleRow(icon: "bell.slash", title: "Silent confirmation", isOn: false)
-                        SettingsToggleRow(icon: "calendar.badge.clock", title: "Bill Reminders", isOn: true)
-                    }
-                    
-                    SettingsGroup(title: "Shortcuts") {
-                        SettingsToggleRow(icon: "bell.slash", title: "Apple Pay Integration", isOn: false)
-                    }
-                }
-
-                // Support
-                SettingsGroup(title: "Support") {
-                    SettingsRow(icon: "questionmark.circle", title: "Help Center", value: nil, isExternal: true)
-                    SettingsRow(icon: "hand.raised", title: "Privacy Policy", value: nil)
-                    SettingsRow(icon: "doc.text", title: "Terms of Service", value: nil)
+                SettingsGroup(title: "Shortcuts - Apple Pay") {
+                    SettingsToggleRow(icon: "bell.slash", title: "Apple Pay Integration", isOn: false)
+                    SettingsToggleRow(icon: "bell.slash", title: "Silent confirmation", isOn: false)
                 }
 
                 VStack(spacing: 24) {

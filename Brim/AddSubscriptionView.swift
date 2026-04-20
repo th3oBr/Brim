@@ -134,35 +134,6 @@ struct AddSubscriptionView: View {
                         .cornerRadius(16)
                         .shadow(color: Color.black.opacity(0.02), radius: 15, y: 4)
 
-                        // Reminder Toggle
-                        HStack {
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.tertiaryContainer.opacity(0.1))
-                                .frame(width: 40, height: 40)
-                                .overlay(
-                                    Image(systemName: "bell.badge.fill")
-                                        .foregroundColor(Color.tertiaryContainer)
-                                )
-
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Payment Reminder")
-                                    .font(.custom("Inter", size: 16).weight(.bold))
-                                    .foregroundColor(Color.onSurface)
-                                Text("Notify 2 days before")
-                                    .font(.custom("Inter", size: 12))
-                                    .foregroundColor(Color.onSurfaceVariant)
-                            }
-
-                            Spacer()
-
-                            Toggle("", isOn: $reminder)
-                                .labelsHidden()
-                                .tint(Color.secondary)
-                        }
-                        .padding(20)
-                        .background(Color.surfaceContainerLow)
-                        .cornerRadius(16)
-
                         // Submit Button
                         Button(action: {
                             let amountValue = Double(amount) ?? 0.0
