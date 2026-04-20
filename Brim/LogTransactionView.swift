@@ -12,8 +12,6 @@ struct LogTransactionView: View {
     @State private var type: Int = 0 // 0 = Expense, 1 = Income
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
-    let categories = ["Dining & Drinks", "Groceries", "Transport", "Shopping", "Entertainment"]
-
     var body: some View {
         VStack(spacing: 0) {
             TopAppBar(title: transactionToEdit != nil ? "Edit Transaction" : "Brim", showBackButton: true, action: {
@@ -119,8 +117,8 @@ struct LogTransactionView: View {
                                     .foregroundColor(Color.onSurfaceVariant)
 
                                 Picker("Category", selection: $category) {
-                                    ForEach(categories, id: \.self) { cat in
-                                        Text(cat).tag(cat)
+                                    ForEach(TransactionCategories) { cat in
+                                        Text(cat.name).tag(cat.name)
                                     }
                                 }
                                 .pickerStyle(.menu)
@@ -170,7 +168,7 @@ struct LogTransactionView: View {
                     amount = String(format: "%.2f", abs(transactionToEdit.amount))
                     merchant = transactionToEdit.merchant
                     date = transactionToEdit.date
-                    category = transactionToEdit.category == "Income" ? "Dining & Drinks" : transactionToEdit.category
+                    category = transactionToEdit.category == "Income" ? (TransactionCategories.first?.name ?? "Dining & Drinks") : transactionToEdit.category
                     type = transactionToEdit.amount < 0 ? 1 : 0
                 }
             }

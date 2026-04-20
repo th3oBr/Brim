@@ -73,8 +73,9 @@ struct AddSubscriptionView: View {
                                 .foregroundColor(Color.onSurfaceVariant)
 
                                 Picker("", selection: $cycle) {
-                                    Text("Monthly").tag(0)
-                                    Text("Yearly").tag(1)
+                                    ForEach(SubscriptionCycles) { cycle in
+                                        Text(cycle.name).tag(cycle.value)
+                                    }
                                 }
                                 .pickerStyle(.menu)
                                 .accentColor(.onSurface)
@@ -96,8 +97,9 @@ struct AddSubscriptionView: View {
                                 .foregroundColor(Color.onSurfaceVariant)
 
                                 Picker("", selection: $category) {
-                                    Text("Entertainment").tag(0)
-                                    Text("Software").tag(1)
+                                    ForEach(SubscriptionCategories) { cat in
+                                        Text(cat.name).tag(cat.value)
+                                    }
                                 }
                                 .pickerStyle(.menu)
                                 .accentColor(.onSurface)

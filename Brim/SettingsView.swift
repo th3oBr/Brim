@@ -6,10 +6,6 @@ struct SettingsView: View {
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
     @AppStorage("currencyCode") private var currencyCode: String = "USD"
 
-    let currencies = [
-        ("USD", "$"), ("EUR", "€"), ("GBP", "£"), ("JPY", "¥")
-    ]
-
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 32) {
@@ -63,13 +59,13 @@ struct SettingsView: View {
                             get: { self.currencyCode },
                             set: { newValue in
                                 self.currencyCode = newValue
-                                if let symbol = currencies.first(where: { $0.0 == newValue })?.1 {
+                                if let symbol = AppCurrencies.first(where: { $0.code == newValue })?.symbol {
                                     self.currencySymbol = symbol
                                 }
                             }
                         )) {
-                            ForEach(currencies, id: \.0) { currency in
-                                Text("\(currency.0) (\(currency.1))").tag(currency.0)
+                            ForEach(AppCurrencies) { currency in
+                                Text("\(currency.code) (\(currency.symbol))").tag(currency.code)
                             }
                         }
                         .tint(Color.onSurfaceVariant)
