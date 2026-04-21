@@ -172,31 +172,15 @@ struct ProfileSetupScreen: View {
                                     .foregroundColor(Color.onSurfaceVariant)
 
                                 VStack(spacing: 0) {
-                                    CurrencyRow(
-                                        symbol: "$",
-                                        code: "USD",
-                                        name: "United States Dollar",
-                                        isSelected: selectedCurrency == "USD"
-                                    ) {
-                                        selectedCurrency = "USD"
-                                    }
-
-                                    CurrencyRow(
-                                        symbol: "€",
-                                        code: "EUR",
-                                        name: "Euro",
-                                        isSelected: selectedCurrency == "EUR"
-                                    ) {
-                                        selectedCurrency = "EUR"
-                                    }
-
-                                    CurrencyRow(
-                                        symbol: "£",
-                                        code: "GBP",
-                                        name: "British Pound Sterling",
-                                        isSelected: selectedCurrency == "GBP"
-                                    ) {
-                                        selectedCurrency = "GBP"
+                                    ForEach(AppCurrencies) { currency in
+                                        CurrencyRow(
+                                            symbol: currency.symbol,
+                                            code: currency.code,
+                                            name: currency.name,
+                                            isSelected: selectedCurrency == currency.code
+                                        ) {
+                                            selectedCurrency = currency.code
+                                        }
                                     }
                                 }
                                 .background(Color.surfaceContainerLow)
@@ -215,19 +199,7 @@ struct ProfileSetupScreen: View {
                 Spacer()
                 VStack {
                     Button(action: {
-                        
-                        let currencies = [
-                            ("USD", "$"), ("EUR", "€"), ("GBP", "£"), ("JPY", "¥")
-                        ]
-                        
-                        for (code, symbol) in currencies {
-                            if code == selectedCurrency {
-                                currencySymbol = symbol
-                                break // Important: This stops the loop immediately once we find the match
-                            }
-                        }
-                        
-                        
+                        currencySymbol = AppCurrencies.first(where: { $0.code == selectedCurrency })?.symbol ?? "$"
                         
                         withAnimation {
                             hasCompletedOnboarding = true

@@ -245,10 +245,11 @@ struct HomeView: View {
                                     } else {
                                         ForEach(upcomingSubscriptions) { sub in
                                             let daysUntil = Calendar.current.dateComponents([.day], from: Date(), to: sub.nextPaymentDate).day ?? 0
+                                            let subCat = SubscriptionCategories.first(where: { $0.value == sub.category })
                                             WarningCard(
-                                                icon: sub.category == 0 ? "play.tv.fill" : "bolt.fill",
+                                                icon: subCat?.icon ?? "bolt.fill",
                                                 title: sub.serviceName,
-                                                subtext: "Due in \(daysUntil) days • \(sub.category == 0 ? "Entertainment" : "Software")",
+                                                subtext: "Due in \(daysUntil) days • \(subCat?.name ?? "Unknown")",
                                                 amount: String(format: "%@%.2f", currencySymbol, sub.amount),
                                                 badge: daysUntil <= 2 ? "CRITICAL" : "UPCOMING"
                                             )
@@ -294,16 +295,17 @@ struct HomeView: View {
                                                     return ("gearshape.fill", .onSurface, .surfaceContainerHighest)
 
                                                 default:
-                                                    let icon = sub.category == 0 ? "play.tv.fill" : "bolt.fill"
+                                                    let icon = SubscriptionCategories.first(where: { $0.value == sub.category })?.icon ?? "bolt.fill"
                                                     return (icon, .primaryColor, .primaryContainer.opacity(0.1))
                                                 }
                                             }()
+                                            let cycleName = SubscriptionCycles.first(where: { $0.value == sub.cycle })?.name ?? "Monthly"
                                             SubscriptionRow(
                                                 icon: iconName,
                                                 iconColor: iColor,
                                                 bgColor: bColor,
                                                 title: sub.serviceName,
-                                                subtext: "\(sub.cycle == 0 ? "Monthly" : "Yearly") • Renewing on \(nthDay)",
+                                                subtext: "\(cycleName) • Renewing on \(nthDay)",
                                                 amount: String(format: "%@%.2f", currencySymbol, sub.amount)
                                             )
                                         }
@@ -392,14 +394,7 @@ struct TransactionRow: View {
 }
 
 func getIconForCategory(_ category: String) -> String {
-    switch category {
-    case "Dining & Drinks": return "cup.and.saucer.fill"
-    case "Groceries": return "bag.fill"
-    case "Transport": return "tram.fill"
-    case "Shopping": return "cart.fill"
-    case "Entertainment": return "play.tv.fill"
-    default: return "dollarsign.circle.fill"
-    }
+    return TransactionCategories.first(where: { $0.name == category })?.icon ?? "dollarsign.circle.fill"
 }
 struct WarningCard: View {
     var icon: String
