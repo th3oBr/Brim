@@ -96,6 +96,7 @@ struct ProfileSetupScreen: View {
     var onBack: (() -> Void)? = nil
   
     @AppStorage("userName") var fullName: String = ""
+    @AppStorage("monthlyBudget") private var monthlyBudget: Double = 500.0
     @AppStorage("currencyCode") var selectedCurrency: String = "USD"
     @AppStorage("currencySymbol") private var currencySymbol: String = "$"
 
@@ -158,6 +159,21 @@ struct ProfileSetupScreen: View {
                                     .foregroundColor(Color.onSurfaceVariant)
 
                                 TextField("Enter your name", text: $fullName)
+                                    .font(.custom("Inter", size: 18))
+                                    .padding(.horizontal, 24)
+                                    .frame(height: 64)
+                                    .background(Color.surfaceContainerHigh)
+                                    .cornerRadius(16)
+                            }
+
+                            // Monthly Budget Input
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Monthly Budget")
+                                    .font(.custom("Inter", size: 16).weight(.semibold))
+                                    .foregroundColor(Color.onSurfaceVariant)
+
+                                TextField("Enter monthly budget", value: $monthlyBudget, format: .currency(code: selectedCurrency))
+                                    .keyboardType(.decimalPad)
                                     .font(.custom("Inter", size: 18))
                                     .padding(.horizontal, 24)
                                     .frame(height: 64)
